@@ -38,7 +38,7 @@ model Case {
   id          String   @id @default(uuid())
   title       String
   description String
-  status      CaseStatus
+  status      CaseStatus @default(DRAFT)
 
   authorId    String
   author      User @relation(fields: [authorId], references: [id])
