@@ -1,4 +1,12 @@
-import { Controller, Post, Get, UseGuards, Body, Param } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Get,
+  UseGuards,
+  Body,
+  Param,
+  Patch,
+} from '@nestjs/common';
 import { CasesService } from './cases.service';
 import { CreateCaseDto } from './dto/create-case.dto';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
@@ -20,6 +28,13 @@ export class CasesController {
       ...dto,
       authorId: user.sub,
     });
+  }
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.STUDENT)
+  @Patch(':id/submit')
+  submit(@Param('id') id: string, @CurrentUser() user: JwtPayload) {
+    return this.casesService.submit(id, user.sub);
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)
