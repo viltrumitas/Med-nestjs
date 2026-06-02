@@ -4,6 +4,7 @@ import { PrismaModule } from './prisma/prisma.module';
 import { validationSchema } from './config/validation.schema';
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
+import { CasesModule } from './cases/cases.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -13,6 +14,7 @@ import { UsersModule } from './users/users.module';
     PrismaModule,
     AuthModule,
     UsersModule,
+    CasesModule,
   ],
 })
 export class AppModule {}
