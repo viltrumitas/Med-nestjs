@@ -5,6 +5,7 @@ import { validationSchema } from './config/validation.schema';
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
 import { CasesModule } from './cases/cases.module';
+import { ReviewsModule } from './reviews/reviews.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -15,6 +16,7 @@ import { CasesModule } from './cases/cases.module';
     AuthModule,
     UsersModule,
     CasesModule,
+    ReviewsModule,
   ],
 })
 export class AppModule {}

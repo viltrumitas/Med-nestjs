@@ -47,12 +47,25 @@ export class CasesService {
       throw new BadRequestException('Only draft cases can be submitted');
     }
 
-    return this.prisma.case.update({
+    const updatedCase = await this.prisma.case.update({
       where: { id },
       data: {
         status: CaseStatus.SUBMITTED,
       },
+      ...caseWithAuthor,
     });
+    return CaseMapper.toResponse(updatedCase);
+  }
+
+  async findSubmittedCases() {
+    const cases = await this.prisma.case.findMany({
+      where: {
+        status: CaseStatus.SUBMITTED,
+      },
+      ...caseWithAuthor,
+    });
+
+    return cases.map((caseEntity) => CaseMapper.toResponse(caseEntity));
   }
 
   async findAll() {
@@ -68,7 +81,7 @@ export class CasesService {
     });
 
     if (!caseEntity) {
-      return null;
+      throw new NotFoundException('Case not found');
     }
 
     return CaseMapper.toResponse(caseEntity);

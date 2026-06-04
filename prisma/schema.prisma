@@ -64,7 +64,7 @@ model Review {
   teacherId String
   teacher   User @relation(fields: [teacherId], references: [id])
 
-  feedback  String?
+  feedback  String
 
   createdAt DateTime @default(now())
 

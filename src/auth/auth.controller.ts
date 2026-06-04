@@ -21,9 +21,9 @@ export class AuthController {
     return this.authService.login(dto);
   }
 
-  @UseGuards(JwtAuthGuard)
-  @Get('profile')
-  profile(@CurrentUser() user: JwtPayload) {
-    return user;
-  }
+  // @UseGuards(JwtAuthGuard)
+  // @Get('profile')
+  // profile(@CurrentUser() user: JwtPayload) {
+  //   return user;
+  // }
 }
