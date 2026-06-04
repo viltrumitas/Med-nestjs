@@ -74,6 +74,20 @@ export class CasesService {
     return cases.map((caseEntity) => CaseMapper.toResponse(caseEntity));
   }
 
+  async findMyCases(userId: string) {
+    const myCases = await this.prisma.case.findMany({
+      where: {
+        authorId: userId,
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
+      ...caseWithAuthor,
+    });
+
+    return myCases.map((myCase) => CaseMapper.toResponse(myCase));
+  }
+
   async findOne(id: string) {
     const caseEntity = await this.prisma.case.findUnique({
       where: { id },

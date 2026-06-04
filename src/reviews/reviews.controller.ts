@@ -1,4 +1,12 @@
-import { Controller, Post, Body, UseGuards, Param, Get } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Body,
+  UseGuards,
+  Param,
+  Get,
+  ParseUUIDPipe,
+} from '@nestjs/common';
 import { ReviewsService } from './reviews.service';
 import { CreateReviewDto } from './dto/create-review.dto';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
@@ -24,7 +32,10 @@ export class ReviewsController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.STUDENT)
   @Get('case/:caseId')
-  findByCase(@Param('caseId') caseId: string) {
-    return this.reviewsService.findByCase(caseId);
+  findByCase(
+    @Param('caseId', ParseUUIDPipe) caseId: string,
+    @CurrentUser() user: JwtPayload,
+  ) {
+    return this.reviewsService.findByCase(caseId, user.sub);
   }
 }

@@ -51,6 +51,13 @@ export class CasesController {
     return this.casesService.findSubmittedCases();
   }
 
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.STUDENT)
+  @Get('my')
+  findMyCases(@CurrentUser() user: JwtPayload) {
+    return this.casesService.findMyCases(user.sub);
+  }
+
   @UseGuards(JwtAuthGuard)
   @Get(':id')
   findOne(@Param('id') id: string) {

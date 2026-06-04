@@ -7,7 +7,6 @@ import {
 import { PrismaService } from '../prisma/prisma.service';
 import { CaseStatus } from '@prisma/client';
 import { safeUserSelect } from '../common/utils/safe-user-select';
-import { ReviewEntity } from './entities/review.entity';
 import { ReviewMapper } from './mappers/review.mapper';
 
 @Injectable()
@@ -78,7 +77,21 @@ export class ReviewsService {
     return ReviewMapper.toResponse(review);
   }
 
-  async findByCase(caseId: string) {
+  async findByCase(caseId: string, studentId: string) {
+    const caseEntity = await this.prisma.case.findUnique({
+      where: { id: caseId },
+    });
+
+    if (!caseEntity) {
+      throw new NotFoundException('Case not found');
+    }
+
+    if (caseEntity.authorId !== studentId) {
+      throw new ForbiddenException(
+        'You can only view reviews for your own cases',
+      );
+    }
+
     const reviews = await this.prisma.review.findMany({
       where: { caseId },
       include: {
