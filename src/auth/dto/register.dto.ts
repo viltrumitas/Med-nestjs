@@ -1,13 +1,13 @@
-import { IsEmail, IsString, MaxLength, MinLength } from 'class-validator';
+import { IsInt, IsNumber, IsString, MaxLength, MinLength } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class RegisterDto {
   @ApiProperty({
-    description: 'Email del usuario',
-    example: 'estudiante@med.edu',
+    description: 'Matricula del usuario',
+    example: 202200008,
   })
-  @IsEmail()
-  email!: string;
+  @IsNumber()
+  matricula!: number;
 
   @ApiProperty({
     description: 'Contraseña (mínimo 6, máximo 100 caracteres)',

@@ -1,14 +1,15 @@
-import { UserRole } from '@prisma/client';
+import { Prisma } from '@prisma/client';
 
-export class ReviewTeacherEntity {
-  id!: string;
-  email!: string;
-  firstName!: string;
-  lastName!: string;
-  role!: UserRole;
-}
-export class ReviewEntity {
-  id!: string;
-  feedback!: string;
-  teacher!: ReviewTeacherEntity;
-}
+export const reviewInclude = {
+  teacher: true,
+  submission: {
+    include: {
+      student: true,
+      case: true,
+    },
+  },
+} satisfies Prisma.ReviewInclude;
+
+export type ReviewEntity = Prisma.ReviewGetPayload<{
+  include: typeof reviewInclude;
+}>;

@@ -6,6 +6,7 @@ import {
   Body,
   Param,
   Patch,
+  Delete,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -14,7 +15,6 @@ import {
   ApiBearerAuth,
   ApiForbiddenResponse,
   ApiNotFoundResponse,
-  ApiConflictResponse,
 } from '@nestjs/swagger';
 import { CasesService } from './cases.service';
 import { CreateCaseDto } from './dto/create-case.dto';
@@ -32,65 +32,33 @@ export class CasesController {
   constructor(private readonly casesService: CasesService) {}
 
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.STUDENT)
+  @Roles(UserRole.TEACHER)
   @Post()
   @ApiOperation({
     summary: 'Crear nuevo caso clínico',
     description:
-      'Solo estudiantes pueden crear casos. El estado inicial es DRAFT',
+      'Solo docentes pueden crear casos clinicos.',
   })
   @ApiResponse({
     status: 201,
     description: 'Caso clínico creado exitosamente',
   })
   @ApiForbiddenResponse({
-    description: 'No tienes permiso (debes ser estudiante)',
+    description: 'No tienes permiso (debes ser docente)',
   })
   create(@Body() dto: CreateCaseDto, @CurrentUser() user: JwtPayload) {
-    return this.casesService.create({
-      ...dto,
-      authorId: user.sub,
-    });
+    return this.casesService.create(dto, user.sub);
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.STUDENT)
-  @Patch(':id/submit')
-  @ApiOperation({
-    summary: 'Enviar caso para evaluación',
-    description:
-      'Cambia el estado del caso a SUBMITTED. Solo el autor puede enviar su caso',
-  })
-  @ApiResponse({
-    status: 200,
-    description: 'Caso enviado exitosamente',
-  })
-  @ApiForbiddenResponse({
-    description: 'No tienes permiso (debes ser el autor)',
-  })
-  @ApiNotFoundResponse({
-    description: 'Caso no encontrado',
-  })
-  @ApiConflictResponse({
-    description: 'El caso ya ha sido enviado',
-  })
-  submit(@Param('id') id: string, @CurrentUser() user: JwtPayload) {
-    return this.casesService.submit(id, user.sub);
-  }
-
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.ADMIN, UserRole.TEACHER)
   @Get()
   @ApiOperation({
     summary: 'Obtener todos los casos',
-    description: 'Solo admin y profesores pueden ver todos los casos',
+    description: 'Cualquiera que este loggeado puede ver los casos publicados',
   })
   @ApiResponse({
     status: 200,
     description: 'Lista de todos los casos',
-  })
-  @ApiForbiddenResponse({
-    description: 'No tienes permiso',
   })
   findAll() {
     return this.casesService.findAll();
@@ -98,30 +66,11 @@ export class CasesController {
 
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.TEACHER)
-  @Get('submitted')
-  @ApiOperation({
-    summary: 'Obtener casos enviados',
-    description:
-      'Solo profesores pueden ver casos que han sido enviados para evaluar',
-  })
-  @ApiResponse({
-    status: 200,
-    description: 'Lista de casos enviados',
-  })
-  @ApiForbiddenResponse({
-    description: 'No tienes permiso (debes ser profesor)',
-  })
-  findSubmittedCases() {
-    return this.casesService.findSubmittedCases();
-  }
-
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.STUDENT)
   @Get('my')
   @ApiOperation({
     summary: 'Obtener mis casos',
     description:
-      '     Retorna todos los casos creados por el estudiante autenticado',
+      '     Retorna todos los casos creados por el docente',
   })
   @ApiResponse({
     status: 200,
@@ -149,5 +98,26 @@ export class CasesController {
   })
   findOne(@Param('id') id: string) {
     return this.casesService.findOne(id);
+  }
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.TEACHER)
+  @Patch(':id/publish')
+  publish(@Param('id') id: string, @CurrentUser() user: JwtPayload) {
+    return this.casesService.publish(id, user.sub);
+  }
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.TEACHER)
+  @Patch(':id/unpublish')
+  unpublish(@Param('id') id: string, @CurrentUser() user: JwtPayload) {
+    return this.casesService.unpublish(id, user.sub)
+  }
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.TEACHER)
+  @Delete('id')
+  deleteCase(@Param('id') id: string, @CurrentUser() user: JwtPayload) {
+    return this.casesService.deleteCase(id, user.sub)
   }
 }

@@ -6,10 +6,10 @@ import { Prisma } from '@prisma/client';
 export class UsersService {
   constructor(private readonly prisma: PrismaService) {}
 
-  findByEmail(email: string) {
+  findByEmail(matricula: number) {
     return this.prisma.user.findUnique({
       where: {
-        email,
+        matricula,
       },
     });
   }

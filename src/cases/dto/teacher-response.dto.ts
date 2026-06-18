@@ -1,6 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { UserRole } from '@prisma/client';
 
-export class AuthorResponseDto {
+export class TeacherResponseDto {
   @ApiProperty({
     description: 'ID único del autor',
     example: '550e8400-e29b-41d4-a716-446655440000',
@@ -8,10 +9,10 @@ export class AuthorResponseDto {
   id!: string;
 
   @ApiProperty({
-    description: 'Email del autor',
-    example: 'estudiante@med.edu',
+    description: 'Matricula del autor',
+    example: 202200008,
   })
-  email!: string;
+  matricula!: number;
 
   @ApiProperty({
     description: 'Primer nombre del autor',
@@ -27,8 +28,8 @@ export class AuthorResponseDto {
 
   @ApiProperty({
     description: 'Rol del usuario',
-    enum: ['ADMIN', 'TEACHER', 'STUDENT'],
+    enum: UserRole,
     example: 'STUDENT',
   })
-  role!: string;
+  role!: UserRole;
 }

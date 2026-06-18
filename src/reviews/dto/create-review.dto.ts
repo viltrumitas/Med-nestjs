@@ -1,20 +1,52 @@
-import { IsString, IsUUID } from 'class-validator';
-import { ApiProperty } from '@nestjs/swagger';
+import { Type } from "class-transformer";
+import { IsOptional, IsString, ValidateNested } from "class-validator";
+import { SceneManagementDto } from "./sceneManagment.dto";
+import { PrimaryAssessmentDto } from "./primaryAssessment.dto";
+import { VitalSignsDto } from "./vitalSigns.dto";
+import { FocusedAssessmentDto } from "./focusedAssessment.dto";
+import { PhysicalExaminationDto } from "./physicalExamination.dto";
+import { OpqrstDto, SamplerDto } from "./anamnesis.dto";
+import { OtherInterventionsDto } from "./otherInterventions.dto";
+import { PatientPriority } from "./patientPriority.dto";
 
 export class CreateReviewDto {
-  @ApiProperty({
-    description: 'ID del caso a evaluar',
-    example: '550e8400-e29b-41d4-a716-446655440000',
-    format: 'uuid',
-  })
-  @IsUUID()
-  caseId!: string;
+  @ValidateNested()
+  @Type(() => SceneManagementDto)
+  sceneManagement!: SceneManagementDto;
 
-  @ApiProperty({
-    description: 'Retroalimentación y evaluación del profesor',
-    example:
-      'Buen análisis clínico. Considera agregar diagnósticos diferenciales. Calificación: 8.5/10',
-  })
+  @ValidateNested()
+  @Type(() => PrimaryAssessmentDto)
+  primaryAssessment!: PrimaryAssessmentDto
+
+  @ValidateNested()
+  @Type(() => PatientPriority)
+  patientPriority!: PatientPriority
+  
+  @ValidateNested()
+  @Type(() => VitalSignsDto)
+  vitalSigns!: VitalSignsDto
+
+  @ValidateNested()
+  @Type(() => FocusedAssessmentDto)
+  focusedAssessment!: FocusedAssessmentDto
+
+  @ValidateNested()
+  @Type(() => PhysicalExaminationDto)
+  physicalExamination!: PhysicalExaminationDto
+
+  @ValidateNested()
+  @Type(() => SamplerDto)
+  sampler!: SamplerDto
+
+  @ValidateNested()
+  @Type(() => OpqrstDto)
+  opqrst!: OpqrstDto
+
+  @ValidateNested()
+  @Type(() => OtherInterventionsDto)
+  otherInterventions!: OtherInterventionsDto
+
+  @IsOptional()
   @IsString()
-  feedback!: string;
+  feedback?: string;
 }

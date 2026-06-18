@@ -1,6 +1,6 @@
 export const safeUserSelect = {
   id: true,
-  email: true,
+  matricula: true,
   firstName: true,
   lastName: true,
   role: true,

@@ -1,36 +1,38 @@
-import { ApiProperty } from '@nestjs/swagger';
-import { AuthorResponseDto } from './author-response.dto';
+import { TeacherResponseDto } from "./teacher-response.dto";
+import { Gender } from "@prisma/client";
 
 export class CaseResponseDto {
-  @ApiProperty({
-    description: 'ID único del caso',
-    example: '550e8400-e29b-41d4-a716-446655440000',
-  })
   id!: string;
 
-  @ApiProperty({
-    description: 'Título del caso clínico',
-    example: 'Paciente con síntomas de diabetes tipo 2',
-  })
-  title!: string;
+  title!: string | null;
 
-  @ApiProperty({
-    description: 'Descripción detallada del caso',
-    example:
-      'Paciente masculino de 45 años presenta hiperglucemia y síntomas...',
-  })
-  description!: string;
+  teacher!: TeacherResponseDto | null;
 
-  @ApiProperty({
-    description: 'Estado del caso',
-    enum: ['DRAFT', 'SUBMITTED', 'EVALUATED'],
-    example: 'SUBMITTED',
-  })
-  status!: string;
+  consult!: string | null;
+  scenery!: string | null;
 
-  @ApiProperty({
-    description: 'Información del autor del caso',
-    type: AuthorResponseDto,
-  })
-  author!: AuthorResponseDto;
+  patientName!: string | null;
+  gender!: Gender | null;
+  age!: number | null;
+
+  medicalHistory!: string[] | null;
+  medications?: string | null;
+
+  generalFindings?: string | null;
+
+  ta?: string | null;
+  fc?: number | null;
+  fr?: number | null;
+  spo2?: number | null;
+  glucose?: number | null;
+  temperature?: number | null;
+  capillaryFiller?: number | null;
+
+  cincinnati?: Record<string, any> | null;
+  glasgow?: number | null;
+
+  isPublished!: boolean | null;
+
+  createdAt!: Date;
+  updatedAt!: Date;
 }

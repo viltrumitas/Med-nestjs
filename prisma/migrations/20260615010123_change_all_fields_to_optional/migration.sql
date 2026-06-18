@@ -1,0 +1,9 @@
+-- AlterTable
+ALTER TABLE "Submission" ALTER COLUMN "sceneManagement" DROP NOT NULL,
+ALTER COLUMN "primaryTest" DROP NOT NULL,
+ALTER COLUMN "presumptiveDiagnosis" DROP NOT NULL,
+ALTER COLUMN "priority" DROP NOT NULL,
+ALTER COLUMN "transferDecision" DROP NOT NULL,
+ALTER COLUMN "treatmentPlan" DROP NOT NULL,
+ALTER COLUMN "reportPatient" DROP NOT NULL,
+ALTER COLUMN "status" DROP NOT NULL;

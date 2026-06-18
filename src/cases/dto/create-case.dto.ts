@@ -1,21 +1,39 @@
-import { IsString, IsOptional } from 'class-validator';
-import { ApiProperty } from '@nestjs/swagger';
+import { Type } from 'class-transformer';
+import { IsOptional, IsString, ValidateNested } from 'class-validator';
+
+import { GeneralInfoDto } from './general-info.dto';
+import { PatientDto } from './patient.dto';
+import { GeneralFindingsDto } from './general-findings.dto';
+import { VitalSignsDto } from './vital-signs.dto';
+import { NeurologicalDto } from './neurological.dto';
+import { PublishCaseDto } from './publish.dto';
 
 export class CreateCaseDto {
-  @ApiProperty({
-    description: 'Título del caso clínico',
-    example: 'Paciente con síntomas de diabetes tipo 2',
-  })
-  @IsString()
-  title!: string;
+  @ValidateNested()
+  @Type(() => GeneralInfoDto)
+  general!: GeneralInfoDto;
 
-  @ApiProperty({
-    description: 'Descripción detallada del caso (opcional)',
-    example:
-      'Paciente masculino de 45 años presenta hiperglucemia y síntomas...',
-    required: false,
-  })
-  @IsString()
+  @ValidateNested()
+  @Type(() => PatientDto)
+  patient!: PatientDto;
+
+  @ValidateNested()
+  @Type(() => GeneralFindingsDto)
+  findings!: GeneralFindingsDto;
+
+  @ValidateNested()
+  @Type(() => VitalSignsDto)
+  vitalSigns!: VitalSignsDto;
+
+  @ValidateNested()
+  @Type(() => NeurologicalDto)
+  neurological!: NeurologicalDto;
+
+  @ValidateNested()
+  @Type(() => PublishCaseDto)
+  publishCase!: PublishCaseDto;
+
   @IsOptional()
-  description!: string;
+  @IsString()
+  feedback?: string;
 }

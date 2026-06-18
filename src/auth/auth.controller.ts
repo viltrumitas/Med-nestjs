@@ -21,7 +21,7 @@ export class AuthController {
   @Post('register')
   @ApiOperation({
     summary: 'Registrar nuevo usuario',
-    description: 'Crea una nueva cuenta de usuario con email y contraseña',
+    description: 'Crea una nueva cuenta de usuario con matricula y contraseña',
   })
   @ApiResponse({
     status: 201,
@@ -29,17 +29,17 @@ export class AuthController {
     schema: {
       example: {
         id: 'uuid',
-        email: 'user@example.com',
+        matricula: '202200008',
         role: 'STUDENT',
         createdAt: '2024-01-01T00:00:00Z',
       },
     },
   })
   @ApiBadRequestResponse({
-    description: 'Validación fallida (email inválido, contraseña débil)',
+    description: 'Validación fallida (matricula inválida, contraseña débil)',
   })
   @ApiConflictResponse({
-    description: 'El email ya está registrado',
+    description: 'Esa matricula ya está registrada',
   })
   register(@Body() dto: RegisterDto) {
     return this.authService.register(dto);
@@ -58,7 +58,7 @@ export class AuthController {
         access_token: 'eyJhbGc...',
         user: {
           id: 'uuid',
-          email: 'user@example.com',
+          matricula: '202200008',
           role: 'STUDENT',
         },
       },

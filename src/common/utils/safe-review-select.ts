@@ -5,7 +5,7 @@ export const SAFE_REVIEW_SELECT = {
   teacher: {
     select: {
       id: true,
-      email: true,
+      matricula: true,
       name: true,
     },
   },

@@ -22,10 +22,10 @@ export class AuthService {
   ) {}
 
   async register(dto: RegisterDto) {
-    const existingUser = await this.usersService.findByEmail(dto.email);
+    const existingUser = await this.usersService.findByEmail(dto.matricula);
 
     if (existingUser) {
-      throw new ConflictException('Email already exists');
+      throw new ConflictException('Esa matricula ya existe');
     }
 
     const hashedPassword = await bcrypt.hash(dto.password, 10);
@@ -37,7 +37,7 @@ export class AuthService {
 
     const payload: JwtPayload = {
       sub: user.id,
-      email: user.email,
+      matricula: user.matricula,
       role: user.role,
     };
 
@@ -47,7 +47,7 @@ export class AuthService {
       access_token: accessToken,
       user: {
         id: user.id,
-        email: user.email,
+        matricula: user.matricula,
         firstName: user.firstName,
         lastName: user.lastName,
         role: user.role,
@@ -56,7 +56,7 @@ export class AuthService {
   }
 
   async login(dto: LoginDto) {
-    const user = await this.usersService.findByEmail(dto.email);
+    const user = await this.usersService.findByEmail(dto.matricula);
 
     if (!user) {
       throw new UnauthorizedException('Invalid credentials');
@@ -70,7 +70,7 @@ export class AuthService {
 
     const payload: JwtPayload = {
       sub: user.id,
-      email: user.email,
+      matricula: user.matricula,
       role: user.role,
     };
 
@@ -78,7 +78,7 @@ export class AuthService {
 
     return {
       id: user.id,
-      email: dto.email,
+      matricula: dto.matricula,
       access_token: accessToken,
     };
   }
