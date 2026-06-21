@@ -7,6 +7,7 @@ import {
   Param,
   Patch,
   Delete,
+  ParseUUIDPipe,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -50,7 +51,7 @@ export class CasesController {
     return this.casesService.create(dto, user.sub);
   }
 
-  @UseGuards(JwtAuthGuard, RolesGuard)
+  @UseGuards(JwtAuthGuard)
   @Get()
   @ApiOperation({
     summary: 'Obtener todos los casos',
@@ -96,28 +97,28 @@ export class CasesController {
   @ApiNotFoundResponse({
     description: 'Caso no encontrado',
   })
-  findOne(@Param('id') id: string) {
+  findOne(@Param('id', ParseUUIDPipe) id: string) {
     return this.casesService.findOne(id);
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.TEACHER)
   @Patch(':id/publish')
-  publish(@Param('id') id: string, @CurrentUser() user: JwtPayload) {
+  publish(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: JwtPayload) {
     return this.casesService.publish(id, user.sub);
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.TEACHER)
   @Patch(':id/unpublish')
-  unpublish(@Param('id') id: string, @CurrentUser() user: JwtPayload) {
+  unpublish(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: JwtPayload) {
     return this.casesService.unpublish(id, user.sub)
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.TEACHER)
-  @Delete('id')
-  deleteCase(@Param('id') id: string, @CurrentUser() user: JwtPayload) {
+  @Delete(':id')
+  deleteCase(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: JwtPayload) {
     return this.casesService.deleteCase(id, user.sub)
   }
 }

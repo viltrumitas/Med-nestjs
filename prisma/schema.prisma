@@ -24,6 +24,16 @@ model User {
   submissions   Submission[]
 }
 
+model AuthorizedTeacher {
+  id String @id @default(uuid())
+  matricula Int @unique
+
+  firstName String?
+  lastName String?
+
+  createdAt DateTime @default(now())
+}
+
 model Case {
   id              String   @id @default(uuid())
 

@@ -6,9 +6,17 @@ import { Prisma } from '@prisma/client';
 export class UsersService {
   constructor(private readonly prisma: PrismaService) {}
 
-  findByEmail(matricula: number) {
+  findByMatricula(matricula: number) {
     return this.prisma.user.findUnique({
       where: {
+        matricula,
+      },
+    });
+  }
+
+  findAuthorizedTeacher(matricula: number) {
+    return this.prisma.authorizedTeacher.findUnique({
+      where: { 
         matricula,
       },
     });

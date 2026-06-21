@@ -13,6 +13,9 @@ import { UsersService } from '../users/users.service';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 import { JwtPayload } from '../common/types/jwt-payload.type';
+import { UserResponseDto } from './dto/user-response.dto';
+import { UserRole } from '@prisma/client';
+import { AuthMapper } from './mappers/auth.mapper';
 
 @Injectable()
 export class AuthService {
@@ -22,7 +25,7 @@ export class AuthService {
   ) {}
 
   async register(dto: RegisterDto) {
-    const existingUser = await this.usersService.findByEmail(dto.matricula);
+    const existingUser = await this.usersService.findByMatricula(dto.matricula);
 
     if (existingUser) {
       throw new ConflictException('Esa matricula ya existe');
@@ -30,9 +33,14 @@ export class AuthService {
 
     const hashedPassword = await bcrypt.hash(dto.password, 10);
 
+    const authorizedTeacher = await this.usersService.findAuthorizedTeacher(dto.matricula);
+
+    const role = authorizedTeacher ? UserRole.TEACHER : UserRole.STUDENT;
+
     const user = await this.usersService.create({
       ...dto,
       password: hashedPassword,
+      role,
     });
 
     const payload: JwtPayload = {
@@ -45,18 +53,12 @@ export class AuthService {
 
     return {
       access_token: accessToken,
-      user: {
-        id: user.id,
-        matricula: user.matricula,
-        firstName: user.firstName,
-        lastName: user.lastName,
-        role: user.role,
-      },
+      user: AuthMapper.toUserResponse(user)
     };
   }
 
   async login(dto: LoginDto) {
-    const user = await this.usersService.findByEmail(dto.matricula);
+    const user = await this.usersService.findByMatricula(dto.matricula);
 
     if (!user) {
       throw new UnauthorizedException('Invalid credentials');
@@ -77,9 +79,8 @@ export class AuthService {
     const accessToken = await this.jwtService.signAsync(payload);
 
     return {
-      id: user.id,
-      matricula: dto.matricula,
       access_token: accessToken,
+      user: AuthMapper.toUserResponse(user),
     };
   }
 }

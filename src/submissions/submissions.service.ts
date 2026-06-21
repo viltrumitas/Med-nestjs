@@ -13,6 +13,7 @@ import { CreateSubmissionDto } from './dto/create-submission.dto';
 import { UpdateSubmissionDto } from './dto/update-submission.dto';
 
 import { SubmissionMapper } from './mapper/submission.mapper';
+import { submissionInclude } from './entities/submission.entity';
 
 @Injectable()
 export class SubmissionsService {
@@ -54,9 +55,7 @@ export class SubmissionsService {
           ...data,
           status: SubmissionStatus.DRAFT,
         },
-        include: {
-          student: true,
-        },
+        include: submissionInclude,
       });
 
     return SubmissionMapper.toResponse(
@@ -68,9 +67,7 @@ export class SubmissionsService {
     const submission =
       await this.prisma.submission.findUnique({
         where: { id: submissionId },
-        include: {
-          student: true,
-        },
+        include: submissionInclude,
       });
 
     if (!submission) {
@@ -125,9 +122,7 @@ export class SubmissionsService {
       await this.prisma.submission.update({
         where: { id: submissionId },
         data: dto,
-        include: {
-          student: true,
-        },
+        include: submissionInclude,
       });
 
     return SubmissionMapper.toResponse(
@@ -189,9 +184,7 @@ export class SubmissionsService {
           status:
             SubmissionStatus.SUBMITTED,
         },
-        include: {
-          student: true,
-        },
+        include: submissionInclude,
       });
 
     return SubmissionMapper.toResponse(
