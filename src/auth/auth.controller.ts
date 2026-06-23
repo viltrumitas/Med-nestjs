@@ -16,7 +16,12 @@ import { CurrentUser } from '../common/decorators/current-user.decorator';
 @ApiTags('Auth')
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(private readonly authService: AuthService) { }
+
+  @Get('health')
+  health() {
+    return { ok: true };
+  }
 
   @Post('register')
   @ApiOperation({
