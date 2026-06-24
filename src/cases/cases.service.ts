@@ -14,6 +14,18 @@ export class CasesService {
   constructor(private readonly prisma: PrismaService) { }
 
   async create(data: CreateCaseDto, teacherId: string) {
+    const existing = await this.prisma.case.findFirst({
+      where: {
+        title: data.general.title,
+        patientName: data.patient.patientName,
+        teacherId,
+      },
+    });
+
+    if (existing) {
+      throw new BadRequestException('Ya existe un caso con estos datos');
+    }
+    
     const createdCase = await this.prisma.case.create({
       data: {
         title: data.general.title,
