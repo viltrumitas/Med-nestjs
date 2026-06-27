@@ -9,11 +9,31 @@ export const assignmentDetailInclude = {
   assignedCases: {
     include: {
       student: true,
-      case: true,
+      case: {
+        include: {
+          author: true,
+        },
+      },
+      submission: {
+        include: {
+          review: true,
+        },
+      },
     },
   },
 } satisfies Prisma.AssignmentInclude;
 
-export type AssignmentListEntity = Prisma.AssignmentGetPayload<{
-  include: typeof assignmentListInclude;
-}>;
+export type AssignmentListEntity =
+  Prisma.AssignmentGetPayload<{
+    include: typeof assignmentListInclude;
+  }>;
+
+export type AssignmentDetailEntity =
+  Prisma.AssignmentGetPayload<{
+    include: typeof assignmentDetailInclude;
+  }>;
+
+export type AssignmentAssignedCaseEntity =
+  Prisma.AssignedCaseGetPayload<{
+    include: typeof assignmentDetailInclude.assignedCases.include;
+  }>;

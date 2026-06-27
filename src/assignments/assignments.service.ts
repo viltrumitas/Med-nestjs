@@ -8,7 +8,7 @@ import { PrismaService } from '../prisma/prisma.service';
 
 import { CreateAssignmentDto } from './dto/create-assignment.dto';
 import { AssignmentMapper } from './mapper/assignment.mapper';
-import { assignmentListInclude } from './entities/assignment.entity';
+import { assignmentDetailInclude, assignmentListInclude } from './entities/assignment.entity';
 
 @Injectable()
 export class AssignmentsService {
@@ -55,14 +55,14 @@ export class AssignmentsService {
   async findOne(id: string) {
     const assignment = await this.prisma.assignment.findUnique({
       where: { id },
-      include: assignmentListInclude,
+      include: assignmentDetailInclude,
     });
 
     if (!assignment) {
       throw new NotFoundException('Assignment not found');
     }
 
-    return AssignmentMapper.toResponse(assignment);
+    return AssignmentMapper.toDetailResponse(assignment);
   }
 
   async publish(id: string, teacherId: string) {
