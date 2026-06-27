@@ -11,6 +11,7 @@ import { ReviewMapper } from './mappers/review.mapper';
 import { CreateReviewDto } from './dto/create-review.dto';
 import { Prisma } from '@prisma/client';
 import { ReviewEntity, reviewInclude } from './entities/review.entity';
+import { toJson } from '../../src/common/utils/to-json';
 
 @Injectable()
 export class ReviewsService {
@@ -19,10 +20,7 @@ export class ReviewsService {
   private calculateSectionScore<T extends object>(section: T): number {
     return Object.values(section)
       .filter((value): value is number => typeof value === 'number')
-      .reduce(
-        (total, value) => total + value,
-        0,
-      );
+      .reduce((total, value) => total + value, 0);
   }
 
   private calculateTotalScore(dto: CreateReviewDto): number {
@@ -35,101 +33,94 @@ export class ReviewsService {
       dto.physicalExamination,
       dto.sampler,
       dto.opqrst,
-      dto.otherInterventions
+      dto.otherInterventions,
     ];
 
     return sections.reduce(
-      (total, section) => total + this.calculateSectionScore(section),
+      (total, section) =>
+        total + this.calculateSectionScore(section),
       0,
     );
   }
 
-  async create(submissionId: string, teacherId: string, dto: CreateReviewDto) {
-    const submission = await this.prisma.submission.findUnique({
-      where: { id: submissionId }
-    })
+  async create(
+    submissionId: string,
+    teacherId: string,
+    dto: CreateReviewDto,
+  ) {
+    const submission =
+      await this.prisma.submission.findUnique({
+        where: { id: submissionId },
+        include: {
+          assignedCase: true,
+        },
+      });
 
     if (!submission) {
       throw new NotFoundException('Submission not found');
     }
 
     if (submission.status !== SubmissionStatus.SUBMITTED) {
-      throw new BadRequestException('Submission must be submitted before review')
+      throw new BadRequestException(
+        'Submission must be submitted before review',
+      );
     }
 
     const teacher = await this.prisma.user.findUnique({
-      where: { id: teacherId }
-    })
+      where: { id: teacherId },
+    });
 
     if (!teacher) {
       throw new NotFoundException('Teacher not found');
     }
 
     if (teacher.role !== UserRole.TEACHER) {
-      throw new ForbiddenException('Only teachers can review submissions');
+      throw new ForbiddenException(
+        'Only teachers can review submissions',
+      );
     }
 
-    const existingReview = await this.prisma.review.findUnique({
-      where: { submissionId }
-    })
+    const existingReview =
+      await this.prisma.review.findUnique({
+        where: { submissionId },
+      });
 
     if (existingReview) {
-      throw new ConflictException('Submission already reviewed');
+      throw new ConflictException(
+        'Submission already reviewed',
+      );
     }
 
     const totalScore = this.calculateTotalScore(dto);
 
-    const {
-      sampler,
-      opqrst
-    } = dto;
-
-    const review: ReviewEntity = await this.prisma.$transaction(async (tx) => {
+    const review = await this.prisma.$transaction(async (tx) => {
       const createdReview = await tx.review.create({
         data: {
           submissionId,
           teacherId,
 
-          sceneManagement: {
-            ...dto.sceneManagement
-          },
-          primaryAssessment: {
-            ...dto.primaryAssessment
-          },
-          patientPriority: {
-            ...dto.patientPriority
-          },
-          vitalSigns: {
-            ...dto.vitalSigns
-          },
-          focusedAssessment: {
-            ...dto.focusedAssessment
-          },
-          physicalExamination: {
-            ...dto.physicalExamination
-          },
-          otherInterventions: {
-            ...dto.otherInterventions
-          },
+          sceneManagement: toJson(dto.sceneManagement),
+          primaryAssessment: toJson(dto.primaryAssessment),
+          patientPriority: toJson(dto.patientPriority),
+          vitalSigns: toJson(dto.vitalSigns),
+          focusedAssessment: toJson(dto.focusedAssessment),
+          physicalExamination: toJson(dto.physicalExamination),
+          otherInterventions: toJson(dto.otherInterventions),
 
-          anamnesis: {
-            sampler: { ...sampler },
-            opqrst: { ...opqrst },
-          } as Prisma.InputJsonValue,
+          anamnesis: toJson({
+            sampler: dto.sampler,
+            opqrst: dto.opqrst,
+          }),
+
           totalScore,
           feedback: dto.feedback,
         },
-
         include: reviewInclude,
       });
 
       await tx.submission.update({
-        where: {
-          id: submissionId,
-        },
-        data: {
-          status: SubmissionStatus.REVIEWED,
-        },
+        where: { id: submissionId },
+        data: { status: SubmissionStatus.REVIEWED },
       });
 
       return createdReview;
@@ -151,7 +142,10 @@ export class ReviewsService {
       throw new NotFoundException('Review not found');
     }
 
-    if (review.submission.studentId !== studentId) {
+    if (
+      review.submission.assignedCase.studentId !==
+      studentId
+    ) {
       throw new ForbiddenException(
         'You do not have access to this review',
       );
@@ -175,7 +169,10 @@ export class ReviewsService {
     }
 
     if (role === UserRole.STUDENT) {
-      if (review.submission.studentId !== userId) {
+      if (
+        review.submission.assignedCase.studentId !==
+        userId
+      ) {
         throw new ForbiddenException(
           'You do not have access to this review',
         );
@@ -193,27 +190,22 @@ export class ReviewsService {
     return ReviewMapper.toResponse(review);
   }
 
-  async findAll(
-    userId: string,
-    role: UserRole,
-  ) {
+  async findAll(userId: string, role: UserRole) {
     const reviews = await this.prisma.review.findMany({
       where:
         role === UserRole.TEACHER
-          ? {
-            teacherId: userId,
-          }
+          ? { teacherId: userId }
           : {
             submission: {
               is: {
-                studentId: userId,
+                assignedCase: {
+                  studentId: userId,
+                },
               },
             },
           },
       include: reviewInclude,
-      orderBy: {
-        createdAt: 'desc',
-      },
+      orderBy: { createdAt: 'desc' },
     });
 
     return reviews.map(ReviewMapper.toResponse);
@@ -226,6 +218,7 @@ export class ReviewsService {
   ) {
     const review = await this.prisma.review.findUnique({
       where: { id },
+      include: reviewInclude,
     });
 
     if (!review) {
@@ -238,80 +231,45 @@ export class ReviewsService {
       );
     }
 
-    const updatedData: any = {};
-
-    if (dto.sceneManagement) {
-      updatedData.sceneManagement = dto.sceneManagement;
-    }
-
-    if (dto.primaryAssessment) {
-      updatedData.primaryAssessment = dto.primaryAssessment;
-    }
-
-    if (dto.patientPriority) {
-      updatedData.patientPriority = dto.patientPriority;
-    }
-
-    if (dto.vitalSigns) {
-      updatedData.vitalSigns = dto.vitalSigns;
-    }
-
-    if (dto.focusedAssessment) {
-      updatedData.focusedAssessment = dto.focusedAssessment;
-    }
-
-    if (dto.physicalExamination) {
-      updatedData.physicalExamination = dto.physicalExamination;
-    }
-
-    if (dto.otherInterventions) {
-      updatedData.otherInterventions = dto.otherInterventions;
-    }
-
-    if (dto.sampler || dto.opqrst) {
-      updatedData.anamnesis = {
-        sampler: dto.sampler ?? (review.anamnesis as any)?.sampler,
-        opqrst: dto.opqrst ?? (review.anamnesis as any)?.opqrst,
-      } as Prisma.InputJsonValue;
-    }
-
-    if (
-      dto.sceneManagement ||
-      dto.primaryAssessment ||
-      dto.patientPriority ||
-      dto.vitalSigns ||
-      dto.focusedAssessment ||
-      dto.physicalExamination ||
-      dto.otherInterventions
-    ) {
-      const merged = {
-        sceneManagement:
-          dto.sceneManagement ?? (review as any).sceneManagement,
-        primaryAssessment:
-          dto.primaryAssessment ?? (review as any).primaryAssessment,
-        patientPriority:
-          dto.patientPriority ?? (review as any).patientPriority,
-        vitalSigns:
-          dto.vitalSigns ?? (review as any).vitalSigns,
-        focusedAssessment:
-          dto.focusedAssessment ?? (review as any).focusedAssessment,
-        physicalExamination:
-          dto.physicalExamination ??
-          (review as any).physicalExamination,
-        otherInterventions:
-          dto.otherInterventions ??
-          (review as any).otherInterventions,
-        sampler: (review.anamnesis as any)?.sampler,
-        opqrst: (review.anamnesis as any)?.opqrst,
-      };
-
-      updatedData.totalScore =
-        this.calculateTotalScore(merged as any);
-    }
-
     const updated = await this.prisma.review.update({
       where: { id },
-      data: updatedData,
+      data: {
+        sceneManagement: dto.sceneManagement
+          ? toJson(dto.sceneManagement)
+          : undefined,
+
+        primaryAssessment: dto.primaryAssessment
+          ? toJson(dto.primaryAssessment)
+          : undefined,
+
+        patientPriority: dto.patientPriority
+          ? toJson(dto.patientPriority)
+          : undefined,
+
+        vitalSigns: dto.vitalSigns
+          ? toJson(dto.vitalSigns)
+          : undefined,
+
+        focusedAssessment: dto.focusedAssessment
+          ? toJson(dto.focusedAssessment)
+          : undefined,
+
+        physicalExamination: dto.physicalExamination
+          ? toJson(dto.physicalExamination)
+          : undefined,
+
+        otherInterventions: dto.otherInterventions
+          ? toJson(dto.otherInterventions)
+          : undefined,
+
+        anamnesis:
+          dto.sampler || dto.opqrst
+            ? toJson({
+              sampler: dto.sampler,
+              opqrst: dto.opqrst,
+            })
+            : undefined,
+      },
       include: reviewInclude,
     });
 

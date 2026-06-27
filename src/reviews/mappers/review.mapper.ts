@@ -1,7 +1,9 @@
 import { ReviewEntity } from '../entities/review.entity';
 import { ReviewResponseDto } from '../dto/review-response.dto';
+
 import { TeacherResponseDto } from 'src/cases/dto/teacher-response.dto';
 import { StudentResponseDto } from 'src/submissions/dto/student-response.dto';
+
 import { SceneManagementDto } from '../dto/sceneManagment.dto';
 import { PrimaryAssessmentDto } from '../dto/primaryAssessment.dto';
 import { PatientPriority } from '../dto/patientPriority.dto';
@@ -22,11 +24,11 @@ export class ReviewMapper {
     };
 
     const student: StudentResponseDto = {
-      id: reviewEntity.submission.student.id,
-      matricula: reviewEntity.submission.student.matricula,
-      firstName: reviewEntity.submission.student.firstName,
-      lastName: reviewEntity.submission.student.lastName,
-      role: reviewEntity.submission.student.role,
+      id: reviewEntity.submission.assignedCase.student.id,
+      matricula: reviewEntity.submission.assignedCase.student.matricula,
+      firstName: reviewEntity.submission.assignedCase.student.firstName,
+      lastName: reviewEntity.submission.assignedCase.student.lastName,
+      role: reviewEntity.submission.assignedCase.student.role,
     };
 
     const anamnesis = reviewEntity.anamnesis as unknown as {
@@ -36,22 +38,28 @@ export class ReviewMapper {
 
     return {
       id: reviewEntity.id,
-      caseId: reviewEntity.submission.caseId,
+
+      caseId: reviewEntity.submission.assignedCase.case.id,
 
       teacher,
       student,
+
       sceneManagement: reviewEntity.sceneManagement as unknown as SceneManagementDto,
       primaryAssessment: reviewEntity.primaryAssessment as unknown as PrimaryAssessmentDto,
       patientPriority: reviewEntity.patientPriority as unknown as PatientPriority,
       vitalSigns: reviewEntity.vitalSigns as unknown as VitalSignsDto,
       focusedAssessment: reviewEntity.focusedAssessment as unknown as FocusedAssessmentDto,
       physicalExamination: reviewEntity.physicalExamination as unknown as PhysicalExaminationDto,
+
       sampler: anamnesis.sampler,
       opqrst: anamnesis.opqrst,
-      otherInterventions: reviewEntity.otherInterventions as unknown as OtherInterventionsDto,
+
+      otherInterventions:
+        reviewEntity.otherInterventions as unknown as OtherInterventionsDto,
+
       totalScore: reviewEntity.totalScore,
-      feedback: reviewEntity.feedback ?? "",
-      
+      feedback: reviewEntity.feedback ?? '',
+
       createdAt: reviewEntity.createdAt,
     };
   }

@@ -1,5 +1,5 @@
 import { TeacherResponseDto } from "./teacher-response.dto";
-import { Gender } from "@prisma/client";
+import { Gender, MedicalArea } from "@prisma/client";
 
 export class CaseResponseDto {
   id!: string;
@@ -30,6 +30,8 @@ export class CaseResponseDto {
 
   cincinnati?: Record<string, any> | null;
   glasgow?: number | null;
+
+  area!: MedicalArea;
 
   isPublished!: boolean | null;
 

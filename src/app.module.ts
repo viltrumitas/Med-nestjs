@@ -7,6 +7,11 @@ import { UsersModule } from './users/users.module';
 import { CasesModule } from './cases/cases.module';
 import { ReviewsModule } from './reviews/reviews.module';
 import { SubmissionsModule } from './submissions/submissions.module';
+import { AssignmentsModule } from './assignments/assignments.module';
+import { AssignedCaseService } from './assigned-case/assigned-case.service';
+import { AssignedCaseController } from './assigned-case/assigned-case.controller';
+import { AssignedCaseModule } from './assigned-case/assigned-case.module';
+
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -19,6 +24,10 @@ import { SubmissionsModule } from './submissions/submissions.module';
     CasesModule,
     ReviewsModule,
     SubmissionsModule,
+    AssignmentsModule,
+    AssignedCaseModule,
   ],
+  providers: [AssignedCaseService],
+  controllers: [AssignedCaseController],
 })
 export class AppModule {}

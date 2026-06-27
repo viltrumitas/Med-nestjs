@@ -1,5 +1,5 @@
 import { Type } from 'class-transformer';
-import { IsOptional, IsString, ValidateNested } from 'class-validator';
+import { IsEnum, IsOptional, IsString, ValidateNested } from 'class-validator';
 
 import { GeneralInfoDto } from './general-info.dto';
 import { PatientDto } from './patient.dto';
@@ -7,6 +7,7 @@ import { GeneralFindingsDto } from './general-findings.dto';
 import { VitalSignsDto } from './vital-signs.dto';
 import { NeurologicalDto } from './neurological.dto';
 import { PublishCaseDto } from './publish.dto';
+import { MedicalArea } from '@prisma/client';
 
 export class CreateCaseDto {
   @ValidateNested()
@@ -28,6 +29,9 @@ export class CreateCaseDto {
   @ValidateNested()
   @Type(() => NeurologicalDto)
   neurological!: NeurologicalDto;
+
+  @IsEnum(MedicalArea)
+  area!: MedicalArea;
 
   @ValidateNested()
   @Type(() => PublishCaseDto)

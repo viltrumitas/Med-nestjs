@@ -1,15 +1,13 @@
 import {
   BadRequestException,
   ForbiddenException,
-  NotFoundException,
   Injectable,
-  ConflictException,
+  NotFoundException,
 } from '@nestjs/common';
 import { SubmissionStatus } from '@prisma/client';
 
 import { PrismaService } from 'src/prisma/prisma.service';
 
-import { CreateSubmissionDto } from './dto/create-submission.dto';
 import { UpdateSubmissionDto } from './dto/update-submission.dto';
 
 import { SubmissionMapper } from './mapper/submission.mapper';
@@ -17,53 +15,34 @@ import { submissionInclude } from './entities/submission.entity';
 
 @Injectable()
 export class SubmissionsService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+  ) {}
 
-  async create(data: CreateSubmissionDto, caseId: string, studentId: string,
-  ) {
-    const caseEntity = await this.prisma.case.findUnique({
-      where: { id: caseId },
-    });
-
-    if (!caseEntity) {
-      throw new NotFoundException('Case not found');
-    }
-
-    if (!caseEntity.isPublished) {
-      throw new ForbiddenException('Case is not available');
-    }
-
-    const existing = await this.prisma.submission.findUnique({
+  async findPendingForTeacher(teacherId: string) {
+    const submissions = await this.prisma.submission.findMany({
       where: {
-        caseId_studentId: {
-          caseId,
-          studentId,
+        status: SubmissionStatus.SUBMITTED,
+        review: null,
+        assignedCase: {
+          assignment: {
+            teacherId,
+          },
         },
+      },
+      include: submissionInclude,
+      orderBy: {
+        updatedAt: 'asc',
       },
     });
 
-    if (existing) {
-      throw new ConflictException(
-        'Submission already exists',
-      );
-    }
-
-    const submission = await this.prisma.submission.create({
-        data: {
-          caseId,
-          studentId,
-          ...data,
-          status: SubmissionStatus.DRAFT,
-        },
-        include: submissionInclude,
-      });
-
-    return SubmissionMapper.toResponse(
-      submission,
-    );
+    return submissions.map(SubmissionMapper.toResponse);
   }
 
-  async findOne(submissionId: string, studentId: string) {
+  async findOne(
+    submissionId: string,
+    studentId: string,
+  ) {
     const submission =
       await this.prisma.submission.findUnique({
         where: { id: submissionId },
@@ -76,7 +55,10 @@ export class SubmissionsService {
       );
     }
 
-    if (submission.studentId !== studentId) {
+    if (
+      submission.assignedCase.studentId !==
+      studentId
+    ) {
       throw new ForbiddenException(
         'Access denied',
       );
@@ -95,6 +77,9 @@ export class SubmissionsService {
     const submission =
       await this.prisma.submission.findUnique({
         where: { id: submissionId },
+        include: {
+          assignedCase: true,
+        },
       });
 
     if (!submission) {
@@ -103,7 +88,10 @@ export class SubmissionsService {
       );
     }
 
-    if (submission.studentId !== studentId) {
+    if (
+      submission.assignedCase.studentId !==
+      studentId
+    ) {
       throw new ForbiddenException(
         'Access denied',
       );
@@ -137,6 +125,9 @@ export class SubmissionsService {
     const submission =
       await this.prisma.submission.findUnique({
         where: { id: submissionId },
+        include: {
+          assignedCase: true,
+        },
       });
 
     if (!submission) {
@@ -145,7 +136,10 @@ export class SubmissionsService {
       );
     }
 
-    if (submission.studentId !== studentId) {
+    if (
+      submission.assignedCase.studentId !==
+      studentId
+    ) {
       throw new ForbiddenException(
         'Access denied',
       );
@@ -168,7 +162,8 @@ export class SubmissionsService {
       !submission.opqrst ||
       !submission.presumptiveDiagnosis ||
       !submission.priority ||
-      submission.transferDecision === null ||
+      submission.transferDecision ===
+        null ||
       !submission.treatmentPlan ||
       !submission.reportPatient
     ) {

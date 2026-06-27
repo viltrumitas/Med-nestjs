@@ -4,8 +4,12 @@ export const reviewInclude = {
   teacher: true,
   submission: {
     include: {
-      student: true,
-      case: true,
+      assignedCase: {
+        include: {
+          student: true,
+          case: true,
+        },
+      },
     },
   },
 } satisfies Prisma.ReviewInclude;

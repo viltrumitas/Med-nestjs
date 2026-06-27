@@ -8,76 +8,119 @@ datasource db {
 }
 
 model User {
-  id         String   @id @default(uuid())
-  matricula  Int      @unique
-  password   String
-  firstName  String
-  lastName   String
-  role       UserRole @default(STUDENT)
+  id        String   @id @default(uuid())
+  matricula Int      @unique
+  password  String
+  firstName String
+  lastName  String
+  role      UserRole @default(STUDENT)
 
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   // Relaciones
-  authoredCases Case[]       @relation("TeacherCases")
-  reviews       Review[]
-  submissions   Submission[]
+  authoredCases      Case[]         @relation("TeacherCases")
+  assignmentsCreated Assignment[]   @relation("TeacherAssignments")
+  assignedCases      AssignedCase[]
+  reviews            Review[]
 }
 
 model AuthorizedTeacher {
-  id String @id @default(uuid())
-  matricula Int @unique
+  id        String @id @default(uuid())
+  matricula Int    @unique
 
   firstName String?
-  lastName String?
+  lastName  String?
 
   createdAt DateTime @default(now())
 }
 
+model Assignment {
+  id String @id @default(uuid())
+
+  title       String
+  description String?
+
+  isPublished Boolean @default(false)
+
+  teacherId String
+  teacher   User   @relation("TeacherAssignments", fields: [teacherId], references: [id])
+
+  assignedCases AssignedCase[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
 model Case {
-  id              String   @id @default(uuid())
+  id String @id @default(uuid())
 
-  title           String?
-  scenery         String
-  consult         String
+  title   String?
+  scenery String
+  consult String
 
-  age             Int
-  gender          Gender
+  age    Int
+  gender Gender
 
   patientName     String?
   medicalHistory  String[]
   medications     String?
   generalFindings String?
 
-  fc              Int?
-  fr              Int?
-  ta              String?
-  spo2            Int?
-  glucose         Int?
-  temperature     Float?
-  glasgow         Int?
+  fc          Int?
+  fr          Int?
+  ta          String?
+  spo2        Int?
+  glucose     Int?
+  temperature Float?
+  glasgow     Int?
 
   capillaryFiller Float?
   cincinnati      Json?
 
-  isPublished     Boolean  @default(false)
+  area MedicalArea
 
-  teacherId       String
-  author          User     @relation("TeacherCases", fields: [teacherId], references: [id])
+  isPublished Boolean @default(false)
 
-  submissions     Submission[]
+  teacherId String
+  author    User   @relation("TeacherCases", fields: [teacherId], references: [id])
 
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  assignedCases AssignedCase[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@unique([title, patientName, teacherId])
 }
 
-model Submission {
-  id                   String            @id @default(uuid())
+model AssignedCase {
+  id String @id @default(uuid())
 
-  caseId               String
-  studentId            String
+  assignmentId String
+  studentId    String
+  caseId       String
+
+  assignment Assignment @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
+  student    User       @relation(fields: [studentId], references: [id])
+  case       Case       @relation(fields: [caseId], references: [id])
+
+  submission Submission?
+
+  assignedAt DateTime @default(now())
+
+  @@unique([assignmentId, studentId])
+  @@index([studentId])
+  @@index([caseId])
+  @@index([assignmentId])
+}
+
+model Submission {
+  id String @id @default(uuid())
+
+  assignedCaseId String @unique
+  studentId String
+
+  assignedCase AssignedCase @relation(fields: [assignedCaseId], references: [id], onDelete: Cascade)
 
   sceneManagement      String?
   sss                  String?
@@ -86,35 +129,29 @@ model Submission {
   opqrst               String?
   presumptiveDiagnosis String?
 
-  priority             Priority?
-  transferDecision     Boolean?
-  treatmentPlan        String?
-  reportPatient        String?
+  priority         Priority?
+  transferDecision Boolean?
+  treatmentPlan    String?
+  reportPatient    String?
 
-  status               SubmissionStatus  @default(DRAFT)
+  status SubmissionStatus @default(DRAFT)
 
-  case                 Case              @relation(fields: [caseId], references: [id], onDelete: Cascade)
-  student              User              @relation(fields: [studentId], references: [id])
+  review Review?
 
-  review               Review?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  createdAt            DateTime          @default(now())
-  updatedAt            DateTime          @updatedAt
-
-  @@unique([caseId, studentId])
-  @@index([caseId])
-  @@index([studentId])
   @@index([status])
 }
 
 model Review {
-  id                  String     @id @default(uuid())
+  id String @id @default(uuid())
 
-  submissionId        String     @unique
-  submission          Submission @relation(fields: [submissionId], references: [id], onDelete: Cascade)
+  submissionId String     @unique
+  submission   Submission @relation(fields: [submissionId], references: [id], onDelete: Cascade)
 
-  teacherId           String
-  teacher             User       @relation(fields: [teacherId], references: [id])
+  teacherId String
+  teacher   User   @relation(fields: [teacherId], references: [id])
 
   sceneManagement     Json
   primaryAssessment   Json
@@ -125,11 +162,11 @@ model Review {
   anamnesis           Json
   otherInterventions  Json
 
-  totalScore          Int
-  feedback            String?    @db.Text
+  totalScore Int
+  feedback   String? @db.Text
 
-  createdAt           DateTime   @default(now())
-  updatedAt           DateTime   @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 enum UserRole {
@@ -155,4 +192,11 @@ enum SubmissionStatus {
   DRAFT
   SUBMITTED
   REVIEWED
+}
+
+enum MedicalArea {
+  PEDIATRICS
+  TRAUMA
+  GYNECO_OBSTETRICS
+  ADULT_EMERGENCY
 }

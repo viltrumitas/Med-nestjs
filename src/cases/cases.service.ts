@@ -25,7 +25,7 @@ export class CasesService {
     if (existing) {
       throw new BadRequestException('Ya existe un caso con estos datos');
     }
-    
+
     const createdCase = await this.prisma.case.create({
       data: {
         title: data.general.title,
@@ -51,16 +51,13 @@ export class CasesService {
         cincinnati: data.neurological.cincinnati,
         glasgow: data.neurological.glasgow,
 
+        area: data.area,
+
         author: {
-          connect: {
-            id: teacherId,
-          },
+          connect: { id: teacherId },
         },
       },
-      include: {
-        author: true,
-        submissions: true,
-      },
+      include: caseInclude,
     });
 
     return CaseMapper.toResponse(createdCase);

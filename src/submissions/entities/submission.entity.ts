@@ -1,15 +1,29 @@
-import { Prisma } from "@prisma/client";
+import { Prisma } from '@prisma/client';
 
 export const submissionInclude = {
-  student: true,
-  case: true,
-  review: {
+  assignedCase: {
     include: {
-      teacher: true,
+      student: true,
+      case: {
+        include: {
+          author: true,
+        },
+      },
+      assignment: {
+        include: {
+          teacher: true,
+        },
+      },
+    },
+  },
+  review: {
+    select: {
+      id: true,
     },
   },
 } satisfies Prisma.SubmissionInclude;
 
-export type SubmissionEntity = Prisma.SubmissionGetPayload<{
-  include: typeof submissionInclude;
-}>;
+export type SubmissionEntity =
+  Prisma.SubmissionGetPayload<{
+    include: typeof submissionInclude;
+  }>;

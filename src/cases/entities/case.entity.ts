@@ -2,7 +2,6 @@ import { Prisma } from '@prisma/client';
 
 export const caseInclude = {
   author: true,
-  submissions: true,
 } satisfies Prisma.CaseInclude;
 
 export type CaseEntity = Prisma.CaseGetPayload<{

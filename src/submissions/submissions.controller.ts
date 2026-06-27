@@ -23,12 +23,12 @@ export class SubmissionsController {
   constructor(private readonly submissionsService: SubmissionsService) {}
 
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.STUDENT)
-  @Post('case/:caseId')
-  create(@Param('caseId') caseId: string, @Body() dto: CreateSubmissionDto, @CurrentUser() user: JwtPayload) {
-    return this.submissionsService.create(dto, caseId, user.sub);
+  @Roles(UserRole.TEACHER)
+  @Get('pending')
+  findPending(@CurrentUser() user: JwtPayload) {
+    return this.submissionsService.findPendingForTeacher(user.sub);
   }
-
+  
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.STUDENT)
   @Get(':id')

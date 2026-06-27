@@ -44,6 +44,8 @@ export class CaseMapper {
 
       glasgow: caseEntity.glasgow,
 
+      area: caseEntity.area,
+
       isPublished: caseEntity.isPublished,
 
       createdAt: caseEntity.createdAt,
