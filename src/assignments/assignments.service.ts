@@ -142,10 +142,16 @@ export class AssignmentsService {
       });
     });
 
-    return {
-      message: 'Assignment published and cases generated',
-      totalStudents: students.length,
-    };
+    const publishedAssignment = await this.prisma.assignment.findUnique({
+      where: { id },
+      include: assignmentDetailInclude,
+    })
+
+    if (!publishedAssignment) {
+      throw new NotFoundException('Assignment not found');
+    }
+
+    return AssignmentMapper.toDetailResponse(publishedAssignment);
   }
 
   async unpublish(id: string, teacherId: string) {
