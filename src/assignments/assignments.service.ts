@@ -9,12 +9,18 @@ import { PrismaService } from '../prisma/prisma.service';
 import { CreateAssignmentDto } from './dto/create-assignment.dto';
 import { AssignmentMapper } from './mapper/assignment.mapper';
 import { assignmentDetailInclude, assignmentListInclude } from './entities/assignment.entity';
+import { CaseMapper } from 'src/cases/mappers/case.mapper';
 
 @Injectable()
 export class AssignmentsService {
   constructor(private readonly prisma: PrismaService) { }
 
   async create(data: CreateAssignmentDto, teacherId: string) {
+
+    if (!data.caseIds || data.caseIds.length < 1) {
+      throw new BadRequestException('Selecciona al menos un caso');
+    }
+    
     const existing = await this.prisma.assignment.findFirst({
       where: {
         title: data.title,
@@ -32,8 +38,17 @@ export class AssignmentsService {
       data: {
         title: data.title,
         description: data.description,
+
         teacher: {
-          connect: { id: teacherId },
+          connect: {
+            id: teacherId,
+          },
+        },
+
+        cases: {
+          create: data.caseIds.map((caseId) => ({
+            caseId,
+          })),
         },
       },
       include: assignmentListInclude,
@@ -50,6 +65,25 @@ export class AssignmentsService {
     });
 
     return assignments.map(AssignmentMapper.toResponse);
+  }
+
+  async findMyPublishedCases(teacherId: string) {
+    const cases = await this.prisma.case.findMany({
+      where: {
+        author: {
+          id: teacherId,
+        },
+        isPublished: true,
+      },
+      include: {
+        author: true,
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
+    });
+
+    return cases.map((c) => CaseMapper.toResponse(c));
   }
 
   async findOne(id: string) {
@@ -81,39 +115,32 @@ export class AssignmentsService {
     }
 
     if (assignment.isPublished) {
-      throw new BadRequestException(
-        'Assignment is already published',
-      );
+      throw new BadRequestException('Assignment is already published');
     }
 
     const students = await this.prisma.user.findMany({
       where: { role: 'STUDENT' },
     });
 
-    const cases = await this.prisma.case.findMany({
-      where: { isPublished: true },
-    });
-
     if (!students.length) {
       throw new BadRequestException('No students available');
     }
 
-    if (!cases.length) {
-      throw new BadRequestException('No cases available');
-    }
+    const assignmentCases = await this.prisma.assignmentCase.findMany({
+      where: { assignmentId: id },
+      include: {
+        case: true,
+      },
+    });
 
-    const existingAssignments =
-      await this.prisma.assignedCase.findMany({
-        where: { assignmentId: id },
-      });
-
-    if (existingAssignments.length > 0) {
+    if (!assignmentCases.length) {
       throw new BadRequestException(
-        'Assignments already generated',
+        'La actividad no tiene casos asociados',
       );
     }
 
-    // BALANCED ALGORITHM
+    const cases = assignmentCases.map((ac) => ac.case);
+
     const shuffledCases = cases
       .map((c) => ({ c, r: Math.random() }))
       .sort((a, b) => a.r - b.r)
@@ -136,16 +163,19 @@ export class AssignmentsService {
         data: { isPublished: true },
       });
 
+      await tx.assignedCase.deleteMany({
+        where: { assignmentId: id },
+      });
+
       await tx.assignedCase.createMany({
         data: assignedData,
-        skipDuplicates: true,
       });
     });
 
     const publishedAssignment = await this.prisma.assignment.findUnique({
       where: { id },
       include: assignmentDetailInclude,
-    })
+    });
 
     if (!publishedAssignment) {
       throw new NotFoundException('Assignment not found');
@@ -192,6 +222,10 @@ export class AssignmentsService {
         'You can only delete your own assignments',
       );
     }
+
+    await this.prisma.assignedCase.deleteMany({
+      where: { assignmentId: id },
+    });
 
     const deleted = await this.prisma.assignment.delete({
       where: { id },

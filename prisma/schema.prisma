@@ -46,10 +46,27 @@ model Assignment {
   teacherId String
   teacher   User   @relation("TeacherAssignments", fields: [teacherId], references: [id])
 
+  cases         AssignmentCase[] @relation("AssignmentCases")
   assignedCases AssignedCase[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+model AssignmentCase {
+  id String @id @default(uuid())
+
+  assignmentId String
+  caseId       String
+
+  assignment Assignment @relation("AssignmentCases", fields: [assignmentId], references: [id], onDelete: Cascade)
+  case       Case       @relation("AssignmentCases", fields: [caseId], references: [id])
+
+  createdAt DateTime @default(now())
+
+  @@unique([assignmentId, caseId])
+  @@index([assignmentId])
+  @@index([caseId])
 }
 
 model Case {
@@ -85,6 +102,7 @@ model Case {
   teacherId String
   author    User   @relation("TeacherCases", fields: [teacherId], references: [id])
 
+  assignments   AssignmentCase[] @relation("AssignmentCases")
   assignedCases AssignedCase[]
 
   createdAt DateTime @default(now())
@@ -118,7 +136,7 @@ model Submission {
   id String @id @default(uuid())
 
   assignedCaseId String @unique
-  studentId String
+  studentId      String
 
   assignedCase AssignedCase @relation(fields: [assignedCaseId], references: [id], onDelete: Cascade)
 

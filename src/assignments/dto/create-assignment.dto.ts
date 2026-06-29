@@ -1,4 +1,4 @@
-import { IsBoolean, IsOptional, IsString } from "class-validator";
+import { ArrayMinSize, IsArray, IsBoolean, IsOptional, IsString } from "class-validator";
 
 export class CreateAssignmentDto {
   @IsString()
@@ -7,6 +7,11 @@ export class CreateAssignmentDto {
   @IsOptional()
   @IsString()
   description!: string;
+
+  @IsArray()
+  @ArrayMinSize(1)
+  @IsString({ each: true})
+  caseIds!: string[];
 
   @IsBoolean()
   isPublished!: boolean;

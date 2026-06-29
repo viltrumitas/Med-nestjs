@@ -6,6 +6,16 @@ export const assignmentListInclude = {
 
 export const assignmentDetailInclude = {
   teacher: true,
+  cases: {
+    include: {
+      case: {
+        include: {
+          author: true,
+        },
+      },
+    },
+  },
+  
   assignedCases: {
     include: {
       student: true,

@@ -3,6 +3,8 @@ import { AssignmentResponseDto } from "../dto/assignment-response.dto";
 import { TeacherResponseDto } from "../../cases/dto/teacher-response.dto";
 import { AssignmentDetailResponseDto } from "../dto/assignment-detail-response.dto";
 import { AssignedCaseMapper } from "../../assigned-case/mapper/assigned-case.mapper";
+import { CaseResponseDto } from "src/cases/dto/case-response.dto";
+import { CaseMapper } from "src/cases/mappers/case.mapper";
 
 export class AssignmentMapper {
   static toResponse(
@@ -33,6 +35,8 @@ export class AssignmentMapper {
     return {
       ...this.toResponse(assignment),
 
+      cases: assignment.cases.map((c) => CaseMapper.toResponse(c.case)),
+      
       assignedCases: assignment.assignedCases.map((assignedCase) =>
         AssignedCaseMapper.toAssignmentResponse(assignedCase),
       ),

@@ -57,6 +57,12 @@ export class AssignmentsController {
     return this.assignmentsService.findMyAssignments(user.sub);
   }
 
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Get('my-published')
+  findMyPublished(@CurrentUser() user: JwtPayload) {
+    return this.assignmentsService.findMyPublishedCases(user.sub);
+  }
+
   @UseGuards(JwtAuthGuard)
   @Get(':id')
   @ApiOperation({
