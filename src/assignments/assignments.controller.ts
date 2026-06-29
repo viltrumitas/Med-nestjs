@@ -1,4 +1,15 @@
-import { Body, Controller, Post, Get, Param, UseGuards, ParseUUIDPipe, Patch, Delete } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Post,
+  Get,
+  Param,
+  UseGuards,
+  ParseUUIDPipe,
+  Patch,
+  Delete,
+} from '@nestjs/common';
+
 import {
   ApiBearerAuth,
   ApiForbiddenResponse,
@@ -7,10 +18,12 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
+
 import { UserRole } from '@prisma/client';
 
 import { AssignmentsService } from './assignments.service';
 import { CreateAssignmentDto } from './dto/create-assignment.dto';
+
 import { JwtAuthGuard } from 'src/common/guards/jwt-auth.guard';
 import { RolesGuard } from 'src/common/guards/roles.guard';
 import { Roles } from 'src/common/decorators/roles.decorator';
@@ -22,87 +35,73 @@ import type { JwtPayload } from 'src/common/types/jwt-payload.type';
 @ApiBearerAuth('access_token')
 @Controller('assignments')
 export class AssignmentsController {
-  constructor(private readonly assignmentsService: AssignmentsService) {}
+  constructor(private readonly assignmentsService: AssignmentsService) { }
 
+  // =========================
+  // CREATE
+  // =========================
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.TEACHER)
   @Post()
-  @ApiOperation({
-    summary: 'Crear nueva actividad',
-    description: 'Solo los docentes pueden crear actividades'
-  })
-  @ApiResponse({
-    status: 201,
-    description: 'Actividad creada exitosamente',
-  })
-  @ApiForbiddenResponse({
-    description: 'No tienes permiso (debes ser docente'
-  })
-  create(@Body() dto: CreateAssignmentDto, @CurrentUser() user: JwtPayload) {
+  create(
+    @Body() dto: CreateAssignmentDto,
+    @CurrentUser() user: JwtPayload,
+  ) {
     return this.assignmentsService.create(dto, user.sub);
   }
 
+  // =========================
+  // MY ASSIGNMENTS
+  // =========================
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.TEACHER)
   @Get('my')
-  @ApiOperation({
-    summary: 'Obtener mis actividades',
-    description: 'Retorna todas las actividades creadas por el docente'
-  })
-  @ApiResponse({
-    status: 200,
-    description: 'Lista de actividades',
-  })
   findMyAssignments(@CurrentUser() user: JwtPayload) {
     return this.assignmentsService.findMyAssignments(user.sub);
   }
 
+  // =========================
+  // MY PUBLISHED CASES (CASOS DISPONIBLES)
+  // =========================
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.TEACHER)
-  @Get('my/published')
-  findMyPublished(@CurrentUser() user: JwtPayload) {
+  @Get('my/published-cases')
+  findMyPublishedCases(@CurrentUser() user: JwtPayload) {
     return this.assignmentsService.findMyPublishedCases(user.sub);
   }
 
+  // =========================
+  // GET BY ID
+  // =========================
   @UseGuards(JwtAuthGuard)
   @Get(':id')
-  @ApiOperation({
-    summary: 'Obtener actividad por ID',
-    description: 'Obtiene los detalles de la actividad'
-  })
-  @ApiNotFoundResponse({
-    description: 'Actividad no encontrada'
-  })
   findOne(@Param('id', ParseUUIDPipe) id: string) {
-    return this.assignmentsService.findOne(id)
+    return this.assignmentsService.findOne(id);
   }
 
+  // =========================
+  // PUBLISH
+  // =========================
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.TEACHER)
   @Patch(':id/publish')
-  @ApiOperation({
-    summary: 'Publicar actividad',
-    description: 'Publica la actividad y genera automaticamente las asignaciones para los alumnos.'
-  })
-  @ApiResponse({
-    status: 200,
-    description: 'Actividad publicada exitosamente'
-  })
-  publish(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: JwtPayload) {
+  publish(
+    @Param('id', ParseUUIDPipe) id: string,
+    @CurrentUser() user: JwtPayload,
+  ) {
     return this.assignmentsService.publish(id, user.sub);
   }
 
+  // =========================
+  // DELETE
+  // =========================
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.TEACHER)
   @Delete(':id')
-  @ApiOperation({
-    summary: 'Eliminar actividad',
-  })
-  @ApiResponse({
-    status: 200,
-    description: 'Actividad eliminada'
-  })
-  deleteAssignment(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: JwtPayload) {
-    return this.assignmentsService.deleteAssignment(id, user.sub)
+  deleteAssignment(
+    @Param('id', ParseUUIDPipe) id: string,
+    @CurrentUser() user: JwtPayload,
+  ) {
+    return this.assignmentsService.deleteAssignment(id, user.sub);
   }
 }
