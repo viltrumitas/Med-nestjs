@@ -59,7 +59,7 @@ export class AssignmentsController {
 
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.TEACHER)
-  @Get('my-published')
+  @Get('my/published')
   findMyPublished(@CurrentUser() user: JwtPayload) {
     return this.assignmentsService.findMyPublishedCases(user.sub);
   }
