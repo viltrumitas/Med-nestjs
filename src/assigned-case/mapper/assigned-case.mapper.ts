@@ -22,8 +22,11 @@ export class AssignedCaseMapper {
         assignedCase.case,
       ),
 
-      submissionId: assignedCase.submission
-        ? assignedCase.submission.id
+      submission: assignedCase.submission
+        ? {
+          id: assignedCase.submission.id,
+          status: assignedCase.submission.status,
+        }
         : null,
 
       assignedAt: assignedCase.assignedAt,
@@ -48,7 +51,12 @@ export class AssignedCaseMapper {
         assignedCase.case,
       ),
 
-      submissionId: assignedCase.submission?.id ?? null,
+      submission: assignedCase.submission
+        ? {
+          id: assignedCase.submission.id,
+          status: assignedCase.submission.status,
+        }
+        : null,
 
       assignedAt: assignedCase.assignedAt,
     };

@@ -1,5 +1,11 @@
-import { StudentResponseDto } from "src/submissions/dto/student-response.dto";
-import { CaseResponseDto } from "src/cases/dto/case-response.dto";
+import { SubmissionStatus } from '@prisma/client';
+import { StudentResponseDto } from 'src/submissions/dto/student-response.dto';
+import { CaseResponseDto } from 'src/cases/dto/case-response.dto';
+
+export class AssignmentAssignedCaseSubmissionDto {
+  id!: string;
+  status!: SubmissionStatus;
+}
 
 export class AssignmentAssignedCaseResponseDto {
   id!: string;
@@ -8,7 +14,7 @@ export class AssignmentAssignedCaseResponseDto {
 
   case!: CaseResponseDto;
 
-  submissionId!: string | null;
+  submission!: AssignmentAssignedCaseSubmissionDto | null;
 
   assignedAt!: Date;
 }
