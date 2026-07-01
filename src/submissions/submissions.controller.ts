@@ -1,4 +1,4 @@
-import { 
+import {
   Body,
   Controller,
   Get,
@@ -6,7 +6,7 @@ import {
   Patch,
   Post,
   UseGuards,
-  
+
 } from '@nestjs/common';
 import { SubmissionsService } from './submissions.service';
 import { CreateSubmissionDto } from './dto/create-submission.dto';
@@ -20,7 +20,7 @@ import { UpdateSubmissionDto } from './dto/update-submission.dto';
 
 @Controller('submissions')
 export class SubmissionsController {
-  constructor(private readonly submissionsService: SubmissionsService) {}
+  constructor(private readonly submissionsService: SubmissionsService) { }
 
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.TEACHER)
@@ -28,12 +28,18 @@ export class SubmissionsController {
   findPending(@CurrentUser() user: JwtPayload) {
     return this.submissionsService.findPendingForTeacher(user.sub);
   }
-  
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.STUDENT)
+
   @Get(':id')
-  findOne(@Param('id') id: string, @CurrentUser() user: JwtPayload) {
-    return this.submissionsService.findOne(id, user.sub);
+  @Roles(UserRole.STUDENT, UserRole.TEACHER)
+  findOne(
+    @Param('id') id: string,
+    @CurrentUser() user: JwtPayload,
+  ) {
+    return this.submissionsService.findOne(
+      id,
+      user.sub,
+      user.role,
+    );
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)
