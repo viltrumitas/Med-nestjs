@@ -1,5 +1,5 @@
-import { TeacherResponseDto } from "./teacher-response.dto";
-import { Gender, MedicalArea } from "@prisma/client";
+import { TeacherResponseDto } from './teacher-response.dto';
+import { Gender, MedicalArea } from '@prisma/client';
 
 export class CaseResponseDto {
   id!: string;

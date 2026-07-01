@@ -1,13 +1,13 @@
-import { Priority, SubmissionStatus } from "@prisma/client";
-import { StudentResponseDto } from "./student-response.dto";
-import { AssignmentResponseDto } from "src/assignments/dto/assignment-response.dto";
-import { CaseResponseDto } from "src/cases/dto/case-response.dto";
+import { Priority, SubmissionStatus } from '@prisma/client';
+import { StudentResponseDto } from './student-response.dto';
+import { AssignmentResponseDto } from 'src/assignments/dto/assignment-response.dto';
+import { CaseResponseDto } from 'src/cases/dto/case-response.dto';
 
 export class SubmissionResponseDto {
   id!: string;
 
   reviewId!: string | null;
-  
+
   student!: StudentResponseDto;
 
   assignment!: AssignmentResponseDto;
