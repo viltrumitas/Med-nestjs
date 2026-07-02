@@ -9,6 +9,8 @@ import { PhysicalExaminationDto } from "./physicalExamination.dto";
 import { SamplerDto } from "./anamnesis.dto";
 import { OpqrstDto } from "./anamnesis.dto";
 import { OtherInterventionsDto } from "./otherInterventions.dto";
+import { CaseResponseDto } from "src/cases/dto/case-response.dto";
+import { AssignmentResponseDto } from "src/assignments/dto/assignment-response.dto";
 
 
 export class ReviewResponseDto {
@@ -17,6 +19,10 @@ export class ReviewResponseDto {
 
   teacher!: TeacherResponseDto;
   student!: StudentResponseDto;
+
+  case!: CaseResponseDto;
+
+  assignment!: AssignmentResponseDto;
 
   sceneManagement!: SceneManagementDto;
 
@@ -38,7 +44,7 @@ export class ReviewResponseDto {
 
   totalScore!: number;
 
-  feedback?: string;
+  feedback?: string | null;
 
   createdAt!: Date;
 }

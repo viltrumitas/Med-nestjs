@@ -23,12 +23,14 @@ export class ReviewMapper {
       role: reviewEntity.teacher.role,
     };
 
+    const assignedCase = reviewEntity.submission.assignedCase;
+
     const student: StudentResponseDto = {
-      id: reviewEntity.submission.assignedCase.student.id,
-      matricula: reviewEntity.submission.assignedCase.student.matricula,
-      firstName: reviewEntity.submission.assignedCase.student.firstName,
-      lastName: reviewEntity.submission.assignedCase.student.lastName,
-      role: reviewEntity.submission.assignedCase.student.role,
+      id: assignedCase.student.id,
+      matricula: assignedCase.student.matricula,
+      firstName: assignedCase.student.firstName,
+      lastName: assignedCase.student.lastName,
+      role: assignedCase.student.role,
     };
 
     const anamnesis = reviewEntity.anamnesis as unknown as {
@@ -44,6 +46,17 @@ export class ReviewMapper {
       teacher,
       student,
 
+      case: {
+        ...assignedCase.case,
+        teacher: assignedCase.case.author,
+      },
+
+      assignment: {
+        ...assignedCase.assignment,
+        teacher: assignedCase.assignment.teacher,
+      },
+
+
       sceneManagement: reviewEntity.sceneManagement as unknown as SceneManagementDto,
       primaryAssessment: reviewEntity.primaryAssessment as unknown as PrimaryAssessmentDto,
       patientPriority: reviewEntity.patientPriority as unknown as PatientPriority,
@@ -58,7 +71,7 @@ export class ReviewMapper {
         reviewEntity.otherInterventions as unknown as OtherInterventionsDto,
 
       totalScore: reviewEntity.totalScore,
-      feedback: reviewEntity.feedback ?? '',
+      feedback: reviewEntity.feedback ?? null,
 
       createdAt: reviewEntity.createdAt,
     };

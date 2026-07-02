@@ -7,7 +7,18 @@ export const reviewInclude = {
       assignedCase: {
         include: {
           student: true,
-          case: true,
+
+          assignment: {
+            include: {
+              teacher: true,
+            },
+          },
+
+          case: {
+            include: {
+              author: true, 
+            },
+          },
         },
       },
     },

@@ -29,6 +29,7 @@ export class SubmissionsController {
     return this.submissionsService.findPendingForTeacher(user.sub);
   }
 
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Get(':id')
   @Roles(UserRole.STUDENT, UserRole.TEACHER)
   findOne(

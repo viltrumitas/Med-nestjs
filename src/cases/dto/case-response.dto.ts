@@ -1,5 +1,6 @@
 import { TeacherResponseDto } from './teacher-response.dto';
 import { Gender, MedicalArea } from '@prisma/client';
+import { Prisma } from '@prisma/client';
 
 export class CaseResponseDto {
   id!: string;
@@ -28,7 +29,7 @@ export class CaseResponseDto {
   temperature?: number | null;
   capillaryFiller?: number | null;
 
-  cincinnati?: Record<string, any> | null;
+  cincinnati?: Prisma.JsonValue;
   glasgow?: number | null;
 
   area!: MedicalArea;
