@@ -46,7 +46,7 @@ export class ClassroomsService {
           connect: { id: teacherId }
         },
       },
-      include: classroomListInclude,
+      include: classroomDetailInclude,
     });
 
     return ClassroomMapper.toResponse(classroom);
@@ -63,7 +63,7 @@ export class ClassroomsService {
       },
     });
 
-    return classrooms.map(ClassroomMapper.toResponse);
+    return classrooms.map(ClassroomMapper.toSummary);
   }
 
   async findOne(id: string, userId: string) {

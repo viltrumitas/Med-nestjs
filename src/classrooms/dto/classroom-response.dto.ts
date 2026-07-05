@@ -13,6 +13,10 @@ export class ClassroomResponseDto {
 
   isActive!: boolean;
 
+  studentsCount!: number;
+
+  assignmentsCount!: number;
+
   createdAt!: Date;
   updatedAt!: Date;
 }

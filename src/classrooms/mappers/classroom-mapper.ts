@@ -1,30 +1,42 @@
-import { ClassroomListEntity, ClassroomDetailEntity } from "../entities/classroom.entity";
-import { ClassroomResponseDto } from "../dto/classroom-response.dto";
 import { Classroom } from "@prisma/client";
-import { ClassroomSummaryResponseDto } from "src/classrooms/dto/assignment-summary-response.dto";
+
+import {
+  ClassroomListEntity,
+  ClassroomDetailEntity,
+} from "../entities/classroom.entity";
+
+import { ClassroomResponseDto } from "../dto/classroom-response.dto";
+import { ClassroomDetailResponseDto } from "../dto/classroom-detail-response.dto";
+import { ClassroomSummaryResponseDto } from "../dto/assignment-summary-response.dto"; 
+
 import { TeacherMapper } from "src/users/mapper/teacher.mapper";
 import { StudentMapper } from "src/users/mapper/student.mapper";
+import { AssignmentMapper } from "src/assignments/mapper/assignment.mapper";
 
 export class ClassroomMapper {
   static toResponse(
     classroom: ClassroomListEntity,
   ): ClassroomResponseDto {
-
-    const teacher = TeacherMapper.toResponse(classroom.teacher)
-
     return {
       id: classroom.id,
       name: classroom.name,
       description: classroom.description,
       code: classroom.code,
       isActive: classroom.isActive,
-      teacher,
+
+      teacher: TeacherMapper.toResponse(classroom.teacher),
+
+      studentsCount: classroom._count.enrollments,
+      assignmentsCount: classroom._count.assignments,
+
       createdAt: classroom.createdAt,
       updatedAt: classroom.updatedAt,
     };
   }
 
-  static toSummary(classroom: Classroom): ClassroomSummaryResponseDto {
+  static toSummary(
+    classroom: Classroom,
+  ): ClassroomSummaryResponseDto {
     return {
       id: classroom.id,
       name: classroom.name,
@@ -32,15 +44,19 @@ export class ClassroomMapper {
     };
   }
 
-  static toDetailResponse(classroom: ClassroomDetailEntity) {
+  static toDetailResponse(
+    classroom: ClassroomDetailEntity,
+  ): ClassroomDetailResponseDto {
     return {
       ...this.toResponse(classroom),
 
-      assignments: classroom.assignments,
-
-      students: classroom.enrollments.map((e) =>
-        StudentMapper.toResponse(e.student)
+      assignments: classroom.assignments.map((assignment) =>
+        AssignmentMapper.toSummary(assignment),
       ),
-    }
+
+      students: classroom.enrollments.map((enrollment) =>
+        StudentMapper.toResponse(enrollment.student),
+      ),
+    };
   }
 }

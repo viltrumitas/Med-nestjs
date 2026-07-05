@@ -1,9 +1,5 @@
-import { ReviewEntity } from '../entities/review.entity';
+import { ReviewDetailEntity, ReviewListEntity } from '../entities/review.entity';
 import { ReviewResponseDto } from '../dto/review-response.dto';
-
-import { TeacherResponseDto } from 'src/users/dto/teacher-response.dto';
-import { StudentResponseDto } from 'src/users/dto/student-response.dto';
-
 import { SceneManagementDto } from '../dto/sceneManagment.dto';
 import { PrimaryAssessmentDto } from '../dto/primaryAssessment.dto';
 import { PatientPriority } from '../dto/patientPriority.dto';
@@ -16,9 +12,10 @@ import { TeacherMapper } from 'src/users/mapper/teacher.mapper';
 import { StudentMapper } from 'src/users/mapper/student.mapper';
 import { AssignmentMapper } from 'src/assignments/mapper/assignment.mapper';
 import { CaseMapper } from 'src/cases/mappers/case.mapper';
+import { ReviewSummaryResponseDto } from '../dto/review-summary.dto';
 
 export class ReviewMapper {
-  static toResponse(reviewEntity: ReviewEntity): ReviewResponseDto {
+  static toResponse(reviewEntity: ReviewDetailEntity): ReviewResponseDto {
     const teacher = TeacherMapper.toResponse(reviewEntity.teacher);
 
     const assignedCase = reviewEntity.submission.assignedCase;
@@ -33,7 +30,7 @@ export class ReviewMapper {
     return {
       id: reviewEntity.id,
 
-      caseId: reviewEntity.submission.assignedCase.case.id,
+      caseId: assignedCase.case.id,
 
       teacher,
       student,
@@ -60,6 +57,33 @@ export class ReviewMapper {
       feedback: reviewEntity.feedback ?? null,
 
       createdAt: reviewEntity.createdAt,
+    };
+  }
+
+  static toSummary(review: ReviewListEntity): ReviewSummaryResponseDto {
+    const assignedCase = review.submission.assignedCase;
+
+    return {
+      id: review.id,
+      totalScore: review.totalScore,
+
+      student: StudentMapper.toSummaryStudent(assignedCase.student),
+
+      assignment: {
+        id: assignedCase.assignment.id,
+        title: assignedCase.assignment.title,
+        isPublished: assignedCase.assignment.isPublished,
+      },
+
+      case: {
+        id: assignedCase.case.id,
+        title: assignedCase.case.title ?? '',
+        consult: assignedCase.case.consult,
+        isPublished: assignedCase.case.isPublished,
+        createdAt: new Date(),
+      },
+
+      createdAt: review.createdAt,
     };
   }
 }

@@ -1,4 +1,4 @@
-import { Prisma } from "@prisma/client";
+import { Prisma } from '@prisma/client';
 
 export const classroomListInclude = {
   teacher: true,
@@ -12,11 +12,13 @@ export const classroomListInclude = {
 
 export const classroomDetailInclude = {
   teacher: true,
+
   enrollments: {
     include: {
       student: true,
     },
   },
+
   assignments: true,
 
   _count: {
@@ -27,12 +29,12 @@ export const classroomDetailInclude = {
   },
 } satisfies Prisma.ClassroomInclude;
 
-export type ClassroomListEntity = 
+export type ClassroomListEntity =
   Prisma.ClassroomGetPayload<{
-    include: typeof classroomListInclude
+    include: typeof classroomListInclude;
   }>;
 
-export type ClassroomDetailEntity = 
+export type ClassroomDetailEntity =
   Prisma.ClassroomGetPayload<{
-    include: typeof classroomDetailInclude
+    include: typeof classroomDetailInclude;
   }>;

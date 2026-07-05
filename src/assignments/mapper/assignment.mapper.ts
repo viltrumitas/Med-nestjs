@@ -1,26 +1,36 @@
-import { AssignmentDetailEntity, AssignmentListEntity } from "../entities/assignment.entity";
+import { Assignment } from "@prisma/client";
+
+import {
+  AssignmentDetailEntity,
+  AssignmentListEntity,
+} from "../entities/assignment.entity";
+
 import { AssignmentResponseDto } from "../dto/assignment-response.dto";
 import { AssignmentDetailResponseDto } from "../dto/assignment-detail-response.dto";
+import { AssignmentSummaryResponse } from "../dto/assignment-summary.dto";
+
 import { AssignedCaseMapper } from "../../assigned-case/mapper/assigned-case.mapper";
 import { CaseMapper } from "src/cases/mappers/case.mapper";
 import { ClassroomMapper } from "src/classrooms/mappers/classroom-mapper";
 
 export class AssignmentMapper {
   static toResponse(
-    assignmentEntity: AssignmentListEntity,
+    assignment: AssignmentListEntity,
   ): AssignmentResponseDto {
     return {
-      id: assignmentEntity.id,
-      title: assignmentEntity.title,
-      description: assignmentEntity.description,
+      id: assignment.id,
+      title: assignment.title,
+      description: assignment.description,
 
-      classroom: ClassroomMapper.toSummary(assignmentEntity.classroom),
+      classroom: ClassroomMapper.toSummary(
+        assignment.classroom,
+      ),
 
-      isPublished: assignmentEntity.isPublished,
+      isPublished: assignment.isPublished,
 
-      createdAt: assignmentEntity.createdAt,
-      updatedAt: assignmentEntity.updatedAt,
-    }
+      createdAt: assignment.createdAt,
+      updatedAt: assignment.updatedAt,
+    };
   }
 
   static toDetailResponse(
@@ -29,11 +39,23 @@ export class AssignmentMapper {
     return {
       ...this.toResponse(assignment),
 
-      cases: assignment.cases.map((c) => CaseMapper.toResponse(c.case)),
-      
-      assignedCases: assignment.assignedCases.map((assignedCase) =>
-        AssignedCaseMapper.toAssignmentResponse(assignedCase),
+      cases: assignment.cases.map((c) =>
+        CaseMapper.toSummary(c.case),
       ),
+
+      assignedCases: assignment.assignedCases.map((assignedCase) =>
+        AssignedCaseMapper.toAssignmentSummary(assignedCase),
+      ),
+    };
+  }
+
+  static toSummary(
+    assignment: Assignment,
+  ): AssignmentSummaryResponse {
+    return {
+      id: assignment.id,
+      title: assignment.title,
+      isPublished: assignment.isPublished,
     };
   }
 }

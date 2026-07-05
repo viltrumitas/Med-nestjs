@@ -1,9 +1,12 @@
-import { CaseEntity } from '../entities/case.entity';
 import { CaseResponseDto } from '../dto/case-response.dto';
 import { TeacherResponseDto } from 'src/users/dto/teacher-response.dto';
+import { CaseSummaryResponseDto } from '../dto/case-summary.dto';
+import { CaseDetailEntity } from '../entities/case.entity';
+import { CaseListEntity } from '../entities/case.entity';
+
 
 export class CaseMapper {
-  static toResponse(caseEntity: CaseEntity): CaseResponseDto {
+  static toResponse(caseEntity: CaseDetailEntity): CaseResponseDto {
     const teacher: TeacherResponseDto = {
       id: caseEntity.author.id,
       matricula: caseEntity.author.matricula,
@@ -14,7 +17,6 @@ export class CaseMapper {
 
     return {
       id: caseEntity.id,
-
       title: caseEntity.title,
 
       teacher,
@@ -39,9 +41,7 @@ export class CaseMapper {
       temperature: caseEntity.temperature,
       capillaryFiller: caseEntity.capillaryFiller,
 
-      cincinnati:
-        caseEntity.cincinnati as Record<string, any> | null,
-
+      cincinnati: caseEntity.cincinnati as Record<string, any> | null,
       glasgow: caseEntity.glasgow,
 
       area: caseEntity.area,
@@ -50,6 +50,16 @@ export class CaseMapper {
 
       createdAt: caseEntity.createdAt,
       updatedAt: caseEntity.updatedAt,
+    };
+  }
+
+  static toSummary(caseEntity: CaseListEntity | CaseDetailEntity): CaseSummaryResponseDto {
+    return {
+      id: caseEntity.id,
+      title: caseEntity.title!,
+      consult: caseEntity.consult,
+      isPublished: caseEntity.isPublished,
+      createdAt: caseEntity.createdAt,
     };
   }
 }

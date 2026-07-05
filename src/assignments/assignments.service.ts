@@ -79,7 +79,7 @@ export class AssignmentsService {
           })),
         },
       },
-      include: assignmentListInclude,
+      include: assignmentDetailInclude,
     });
 
     return AssignmentMapper.toResponse(assignment);
@@ -97,7 +97,7 @@ export class AssignmentsService {
       orderBy: { createdAt: 'desc' },
     });
 
-    return assignments.map(AssignmentMapper.toResponse);
+    return assignments.map(AssignmentMapper.toSummary);
   }
 
   async findMyPublishedCases(teacherId: string) {
@@ -116,7 +116,7 @@ export class AssignmentsService {
       },
     });
 
-    return cases.map((c) => CaseMapper.toResponse(c));
+    return cases.map((c) => CaseMapper.toSummary(c));
   }
 
   async findOne(id: string, teacherId: string) {

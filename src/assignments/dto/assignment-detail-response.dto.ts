@@ -1,10 +1,10 @@
 import { AssignmentResponseDto } from "./assignment-response.dto";
-import { AssignmentAssignedCaseResponseDto } from "./assignment-assigned-case.dto";
-import { CaseResponseDto } from "src/cases/dto/case-response.dto";
+import { CaseSummaryResponseDto } from "src/cases/dto/case-summary.dto";
+import { AssignmentAssignedCaseSummaryDto } from "./assignment-assigned-case-summary.dto";
 
 export class AssignmentDetailResponseDto
   extends AssignmentResponseDto {
 
-  cases!: CaseResponseDto[];
-  assignedCases!: AssignmentAssignedCaseResponseDto[];
+  cases!: CaseSummaryResponseDto[];
+  assignedCases!: AssignmentAssignedCaseSummaryDto[];
 }

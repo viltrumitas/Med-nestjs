@@ -12,7 +12,8 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { UpdateSubmissionDto } from './dto/update-submission.dto';
 
 import { SubmissionMapper } from './mapper/submission.mapper';
-import { submissionInclude } from './entities/submission.entity';
+import { submissionDetailInclude } from './entities/submission.entity';
+import { submissionListInclude } from './entities/submission.entity';
 
 @Injectable()
 export class SubmissionsService {
@@ -34,13 +35,13 @@ export class SubmissionsService {
           },
         },
       },
-      include: submissionInclude,
+      include: submissionListInclude,
       orderBy: {
         updatedAt: 'asc',
       },
     });
 
-    return submissions.map(SubmissionMapper.toResponse);
+    return submissions.map(SubmissionMapper.toSummary);
   }
 
 
@@ -52,7 +53,7 @@ export class SubmissionsService {
     const submission =
       await this.prisma.submission.findUnique({
         where: { id: submissionId },
-        include: submissionInclude,
+        include: submissionDetailInclude,
       });
 
     if (!submission) {
@@ -96,7 +97,7 @@ export class SubmissionsService {
     const submission =
       await this.prisma.submission.findUnique({
         where: { id: submissionId },
-        include: submissionInclude,
+        include: submissionDetailInclude,
       });
 
     if (!submission) {
@@ -135,7 +136,7 @@ export class SubmissionsService {
       await this.prisma.submission.update({
         where: { id: submissionId },
         data: dto,
-        include: submissionInclude,
+        include: submissionDetailInclude,
       });
 
     return SubmissionMapper.toResponse(
@@ -150,7 +151,7 @@ export class SubmissionsService {
     const submission =
       await this.prisma.submission.findUnique({
         where: { id: submissionId },
-        include: submissionInclude,
+        include: submissionDetailInclude,
       });
 
     if (!submission) {
@@ -210,7 +211,7 @@ export class SubmissionsService {
           status:
             SubmissionStatus.SUBMITTED,
         },
-        include: submissionInclude,
+        include: submissionDetailInclude,
       });
 
     return SubmissionMapper.toResponse(

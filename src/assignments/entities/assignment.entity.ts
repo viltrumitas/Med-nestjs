@@ -4,16 +4,17 @@ export const assignmentListInclude = {
   classroom: {
     include: {
       teacher: true,
-    }
-  }
+    },
+  },
 } satisfies Prisma.AssignmentInclude;
 
 export const assignmentDetailInclude = {
   classroom: {
     include: {
       teacher: true,
-    }
+    },
   },
+
   cases: {
     include: {
       case: {
@@ -23,18 +24,24 @@ export const assignmentDetailInclude = {
       },
     },
   },
-  
+
   assignedCases: {
     include: {
       student: true,
+
       case: {
         include: {
           author: true,
         },
       },
+
       submission: {
         include: {
-          review: true,
+          review: {
+            select: {
+              id: true,
+            },
+          },
         },
       },
     },

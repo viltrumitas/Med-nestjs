@@ -7,7 +7,7 @@ import {
 import { PrismaService } from '../prisma/prisma.service';
 import { CaseMapper } from './mappers/case.mapper';
 import { CreateCaseDto } from './dto/create-case.dto';
-import { caseInclude } from './entities/case.entity';
+import { caseListInclude, caseDetailInclude } from './entities/case.entity';
 
 @Injectable()
 export class CasesService {
@@ -57,7 +57,7 @@ export class CasesService {
           connect: { id: teacherId },
         },
       },
-      include: caseInclude,
+      include: caseDetailInclude,
     });
 
     return CaseMapper.toResponse(createdCase);
@@ -68,13 +68,13 @@ export class CasesService {
       where: {
         isPublished: true,
       },
-      include: caseInclude,
+      include: caseListInclude,
       orderBy: {
         createdAt: 'desc',
       },
     });
 
-    return cases.map(CaseMapper.toResponse);
+    return cases.map(CaseMapper.toSummary);
   }
 
   async findMyCases(teacherId: string) {
@@ -82,13 +82,13 @@ export class CasesService {
       where: {
         teacherId
       },
-      include: caseInclude,
+      include: caseListInclude,
       orderBy: {
         createdAt: 'desc',
       },
     });
 
-    return cases.map(CaseMapper.toResponse);
+    return cases.map(CaseMapper.toSummary);
   }
 
   async findPublished(teacherId: string) {
@@ -97,18 +97,18 @@ export class CasesService {
         teacherId,
         isPublished: true,
       },
-      include: caseInclude,
+      include: caseListInclude,
       orderBy: {
         createdAt: 'desc'
       },
     });
-    return cases.map(CaseMapper.toResponse);
+    return cases.map(CaseMapper.toSummary);
   }
 
   async findOne(id: string, teacherId?: string) {
     const caseEntity = await this.prisma.case.findUnique({
       where: { id },
-      include: caseInclude,
+      include: caseDetailInclude,
     });
 
     if (!caseEntity) {
@@ -144,7 +144,7 @@ export class CasesService {
       data: {
         isPublished: true,
       },
-      include: caseInclude,
+      include: caseDetailInclude,
     });
 
     return CaseMapper.toResponse(updatedCase);
@@ -181,7 +181,7 @@ export class CasesService {
       data: {
         isPublished: false,
       },
-      include: caseInclude,
+      include: caseDetailInclude,
     });
 
     return CaseMapper.toResponse(updatedCase)

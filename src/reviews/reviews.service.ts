@@ -9,10 +9,13 @@ import { PrismaService } from '../prisma/prisma.service';
 import { SubmissionStatus, UserRole } from '@prisma/client';
 import { ReviewMapper } from './mappers/review.mapper';
 import { CreateReviewDto } from './dto/create-review.dto';
-import { Prisma } from '@prisma/client';
-import { ReviewEntity, reviewInclude } from './entities/review.entity';
 import { toJson, fromJson } from '../../src/common/utils/to-json';
-import { OpqrstDto, SamplerDto } from './dto/anamnesis.dto';
+import {
+  ReviewListEntity,
+  ReviewDetailEntity,
+  reviewListInclude,
+  reviewDetailInclude,
+} from './entities/review.entity';
 
 @Injectable()
 export class ReviewsService {
@@ -115,7 +118,7 @@ export class ReviewsService {
           totalScore,
           feedback: dto.feedback,
         },
-        include: reviewInclude,
+        include: reviewDetailInclude,
       });
 
       await tx.submission.update({
@@ -135,7 +138,7 @@ export class ReviewsService {
   ) {
     const review = await this.prisma.review.findUnique({
       where: { submissionId },
-      include: reviewInclude,
+      include: reviewDetailInclude,
     });
 
     if (!review) {
@@ -161,7 +164,7 @@ export class ReviewsService {
   ) {
     const review = await this.prisma.review.findUnique({
       where: { id },
-      include: reviewInclude,
+      include: reviewDetailInclude,
     });
 
     if (!review) {
@@ -203,11 +206,11 @@ export class ReviewsService {
           },
         },
       },
-      include: reviewInclude,
+      include: reviewListInclude,
       orderBy: { createdAt: 'desc' },
     });
 
-    return reviews.map(ReviewMapper.toResponse);
+    return reviews.map(ReviewMapper.toSummary);
   }
 
   async update(
@@ -217,7 +220,7 @@ export class ReviewsService {
   ) {
     const review = await this.prisma.review.findUnique({
       where: { id },
-      include: reviewInclude,
+      include: reviewDetailInclude,
     });
 
     if (!review) {
@@ -321,7 +324,7 @@ export class ReviewsService {
 
         feedback: reviewData.feedback,
       },
-      include: reviewInclude,
+      include: reviewDetailInclude,
     });
 
     return ReviewMapper.toResponse(updated);

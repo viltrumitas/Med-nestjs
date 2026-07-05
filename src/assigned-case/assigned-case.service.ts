@@ -1,9 +1,9 @@
 import { ConflictException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { SubmissionStatus } from '@prisma/client';
 import { AssignedCaseMapper } from './mapper/assigned-case.mapper';
-import { assignedCaseListInclude } from './entities/assigned-case.entity';
+import { assignedCaseDetailInclude, assignedCaseListInclude } from './entities/assigned-case.entity';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { submissionInclude } from 'src/submissions/entities/submission.entity';
+import { submissionDetailInclude } from 'src/submissions/entities/submission.entity';
 import { SubmissionMapper } from 'src/submissions/mapper/submission.mapper';
 
 @Injectable()
@@ -41,7 +41,7 @@ export class AssignedCaseService {
         assignedCaseId,
         status: SubmissionStatus.DRAFT,
       },
-      include: submissionInclude,
+      include: submissionDetailInclude,
     });
 
     return SubmissionMapper.toResponse(createdSubmission);
@@ -63,7 +63,7 @@ export class AssignedCaseService {
         assignedAt: 'desc',
       },
     });
-    return assignedCases.map(AssignedCaseMapper.toResponse)
+    return assignedCases.map(AssignedCaseMapper.toSummary)
   }
 
   async findOne(
@@ -75,7 +75,7 @@ export class AssignedCaseService {
         where: {
           id: assignedCaseId,
         },
-        include: assignedCaseListInclude,
+        include: assignedCaseDetailInclude,
       });
 
     if (!assignedCase) {
