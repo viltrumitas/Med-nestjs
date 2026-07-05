@@ -1,11 +1,19 @@
 import { Prisma } from "@prisma/client";
 
 export const assignmentListInclude = {
-  teacher: true,
+  classroom: {
+    include: {
+      teacher: true,
+    }
+  }
 } satisfies Prisma.AssignmentInclude;
 
 export const assignmentDetailInclude = {
-  teacher: true,
+  classroom: {
+    include: {
+      teacher: true,
+    }
+  },
   cases: {
     include: {
       case: {

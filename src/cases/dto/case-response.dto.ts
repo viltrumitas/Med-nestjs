@@ -1,4 +1,4 @@
-import { TeacherResponseDto } from './teacher-response.dto';
+import { TeacherResponseDto } from 'src/users/dto/teacher-response.dto'; 
 import { Gender, MedicalArea } from '@prisma/client';
 import { Prisma } from '@prisma/client';
 

@@ -11,7 +11,8 @@ import { ReviewMapper } from './mappers/review.mapper';
 import { CreateReviewDto } from './dto/create-review.dto';
 import { Prisma } from '@prisma/client';
 import { ReviewEntity, reviewInclude } from './entities/review.entity';
-import { toJson } from '../../src/common/utils/to-json';
+import { toJson, fromJson } from '../../src/common/utils/to-json';
+import { OpqrstDto, SamplerDto } from './dto/anamnesis.dto';
 
 @Injectable()
 export class ReviewsService {
@@ -52,7 +53,15 @@ export class ReviewsService {
       await this.prisma.submission.findUnique({
         where: { id: submissionId },
         include: {
-          assignedCase: true,
+          assignedCase: {
+            include: {
+              assignment: {
+                include: {
+                  classroom: true,
+                },
+              },
+            },
+          },
         },
       });
 
@@ -60,23 +69,14 @@ export class ReviewsService {
       throw new NotFoundException('Submission not found');
     }
 
+    if (submission.assignedCase.assignment.classroom.teacherId !== teacherId) {
+      throw new ForbiddenException('No puedes revisar esta entrega');
+    }
+
+
     if (submission.status !== SubmissionStatus.SUBMITTED) {
       throw new BadRequestException(
         'Submission must be submitted before review',
-      );
-    }
-
-    const teacher = await this.prisma.user.findUnique({
-      where: { id: teacherId },
-    });
-
-    if (!teacher) {
-      throw new NotFoundException('Teacher not found');
-    }
-
-    if (teacher.role !== UserRole.TEACHER) {
-      throw new ForbiddenException(
-        'Only teachers can review submissions',
       );
     }
 
@@ -180,7 +180,7 @@ export class ReviewsService {
     }
 
     if (role === UserRole.TEACHER) {
-      if (review.teacherId !== userId) {
+      if (review.submission.assignedCase.assignment.classroom.teacherId !== userId) {
         throw new ForbiddenException(
           'You do not have access to this review',
         );
@@ -190,20 +190,19 @@ export class ReviewsService {
     return ReviewMapper.toResponse(review);
   }
 
-  async findAll(userId: string, role: UserRole) {
+  async findAll(teacherId: string) {
     const reviews = await this.prisma.review.findMany({
-      where:
-        role === UserRole.TEACHER
-          ? { teacherId: userId }
-          : {
-            submission: {
-              is: {
-                assignedCase: {
-                  studentId: userId,
-                },
+      where: {
+        submission: {
+          assignedCase: {
+            assignment: {
+              classroom: {
+                teacherId,
               },
             },
           },
+        },
+      },
       include: reviewInclude,
       orderBy: { createdAt: 'desc' },
     });
@@ -225,50 +224,102 @@ export class ReviewsService {
       throw new NotFoundException('Review not found');
     }
 
-    if (review.teacherId !== teacherId) {
+    if (
+      review.submission.assignedCase.assignment.classroom.teacherId !==
+      teacherId
+    ) {
       throw new ForbiddenException(
         'You do not have access to this review',
       );
     }
 
+    const anamnesis = fromJson<{
+      sampler: CreateReviewDto['sampler'];
+      opqrst: CreateReviewDto['opqrst'];
+    }>(review.anamnesis);
+
+    const reviewData: CreateReviewDto = {
+      sceneManagement:
+        dto.sceneManagement ??
+        fromJson<CreateReviewDto['sceneManagement']>(
+          review.sceneManagement,
+        ),
+
+      primaryAssessment:
+        dto.primaryAssessment ??
+        fromJson<CreateReviewDto['primaryAssessment']>(
+          review.primaryAssessment
+        ),
+
+      patientPriority:
+        dto.patientPriority ??
+        fromJson<CreateReviewDto['patientPriority']>(
+          review.patientPriority
+        ),
+
+      vitalSigns:
+        dto.vitalSigns ??
+        fromJson<CreateReviewDto['vitalSigns']>(
+          review.vitalSigns
+        ),
+
+      focusedAssessment:
+        dto.focusedAssessment ??
+        fromJson<CreateReviewDto['focusedAssessment']>(
+          review.focusedAssessment
+        ),
+
+      physicalExamination:
+        dto.physicalExamination ??
+        fromJson<CreateReviewDto['physicalExamination']>(
+          review.physicalExamination
+        ),
+
+      sampler:
+        dto.sampler ??
+        anamnesis.sampler,
+
+      opqrst:
+        dto.opqrst ??
+        anamnesis.opqrst,
+
+      otherInterventions:
+        dto.otherInterventions ??
+        fromJson<CreateReviewDto['otherInterventions']>(
+          review.otherInterventions
+        ),
+
+      feedback:
+        dto.feedback ??
+        review.feedback ??
+        undefined,
+    };
+
+    const totalScore =
+      this.calculateTotalScore(reviewData);
+
     const updated = await this.prisma.review.update({
       where: { id },
       data: {
-        sceneManagement: dto.sceneManagement
-          ? toJson(dto.sceneManagement)
-          : undefined,
+        sceneManagement: toJson(reviewData.sceneManagement),
+        primaryAssessment: toJson(reviewData.primaryAssessment),
+        patientPriority: toJson(reviewData.patientPriority),
+        vitalSigns: toJson(reviewData.vitalSigns),
+        focusedAssessment: toJson(reviewData.focusedAssessment),
+        physicalExamination: toJson(reviewData.physicalExamination),
 
-        primaryAssessment: dto.primaryAssessment
-          ? toJson(dto.primaryAssessment)
-          : undefined,
+        anamnesis: toJson({
+          sampler: reviewData.sampler,
+          opqrst: reviewData.opqrst,
+        }),
 
-        patientPriority: dto.patientPriority
-          ? toJson(dto.patientPriority)
-          : undefined,
+        otherInterventions: toJson(
+          reviewData.otherInterventions,
+        ),
 
-        vitalSigns: dto.vitalSigns
-          ? toJson(dto.vitalSigns)
-          : undefined,
+        totalScore,
 
-        focusedAssessment: dto.focusedAssessment
-          ? toJson(dto.focusedAssessment)
-          : undefined,
-
-        physicalExamination: dto.physicalExamination
-          ? toJson(dto.physicalExamination)
-          : undefined,
-
-        otherInterventions: dto.otherInterventions
-          ? toJson(dto.otherInterventions)
-          : undefined,
-
-        anamnesis:
-          dto.sampler || dto.opqrst
-            ? toJson({
-              sampler: dto.sampler,
-              opqrst: dto.opqrst,
-            })
-            : undefined,
+        feedback: reviewData.feedback,
       },
       include: reviewInclude,
     });

@@ -1,11 +1,11 @@
-import { TeacherResponseDto } from "src/cases/dto/teacher-response.dto";
+import { ClassroomSummaryResponseDto } from "../../classrooms/dto/assignment-summary-response.dto";
 
 export class AssignmentResponseDto {
   id!: string;
   title!: string;
   description!: string | null;
 
-  teacher!: TeacherResponseDto | null;
+  classroom!: ClassroomSummaryResponseDto;
 
   isPublished!: boolean;
 

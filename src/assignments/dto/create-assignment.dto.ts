@@ -1,8 +1,11 @@
-import { ArrayMinSize, IsArray, IsBoolean, IsOptional, IsString } from "class-validator";
+import { ArrayMinSize, IsArray, IsBoolean, IsOptional, IsString, IsUUID } from "class-validator";
 
 export class CreateAssignmentDto {
   @IsString()
   title!: string;
+
+  @IsUUID()
+  classroomId!: string;
 
   @IsOptional()
   @IsString()
@@ -12,7 +15,4 @@ export class CreateAssignmentDto {
   @ArrayMinSize(1)
   @IsString({ each: true})
   caseIds!: string[];
-
-  @IsBoolean()
-  isPublished!: boolean;
 }

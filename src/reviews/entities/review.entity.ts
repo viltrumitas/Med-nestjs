@@ -10,7 +10,11 @@ export const reviewInclude = {
 
           assignment: {
             include: {
-              teacher: true,
+              classroom: {
+                include: {
+                  teacher: true,
+                }
+              },
             },
           },
 

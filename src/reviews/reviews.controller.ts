@@ -109,7 +109,6 @@ export class ReviewsController {
   ) {
     return this.reviewsService.findAll(
       user.sub,
-      user.role,
     );
   }
 

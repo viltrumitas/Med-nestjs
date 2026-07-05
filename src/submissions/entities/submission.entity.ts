@@ -11,7 +11,11 @@ export const submissionInclude = {
       },
       assignment: {
         include: {
-          teacher: true,
+          classroom: {
+            include: {
+              teacher: true,
+            },
+          },
         },
       },
     },

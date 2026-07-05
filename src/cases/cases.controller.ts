@@ -84,6 +84,16 @@ export class CasesController {
     return this.casesService.findMyCases(user.sub);
   }
 
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.TEACHER)
+  @Get('my-published-cases')
+  @ApiOperation({
+    summary: 'Obtener solo los casos publicados'
+  })
+  findPublished(@CurrentUser() user: JwtPayload) {
+    return this.casesService.findPublished(user.sub);
+  }
+
   @UseGuards(JwtAuthGuard)
   @Get(':id')
   @ApiOperation({

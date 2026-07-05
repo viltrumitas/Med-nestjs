@@ -27,7 +27,10 @@ export class SubmissionsService {
         review: null,
         assignedCase: {
           assignment: {
-            teacherId,
+            classroom: {
+              teacherId,
+              isActive: true,
+            },
           },
         },
       },
@@ -41,165 +44,177 @@ export class SubmissionsService {
   }
 
 
-async findOne(
-  submissionId: string,
-  userId: string,
-  role: UserRole,
-) {
-  const submission =
-    await this.prisma.submission.findUnique({
-      where: { id: submissionId },
-      include: submissionInclude,
-    });
+  async findOne(
+    submissionId: string,
+    userId: string,
+    role: UserRole,
+  ) {
+    const submission =
+      await this.prisma.submission.findUnique({
+        where: { id: submissionId },
+        include: submissionInclude,
+      });
 
-  if (!submission) {
-    throw new NotFoundException(
-      'Submission not found',
+    if (!submission) {
+      throw new NotFoundException(
+        'Submission not found',
+      );
+    }
+
+    if (role === UserRole.STUDENT) {
+      if (
+        submission.assignedCase.studentId !==
+        userId
+      ) {
+        throw new ForbiddenException(
+          'Access denied',
+        );
+      }
+    }
+
+    if (role === UserRole.TEACHER) {
+      if (
+        submission.assignedCase.assignment.classroom.teacherId !==
+        userId
+      ) {
+        throw new ForbiddenException(
+          'Access denied',
+        );
+      }
+    }
+
+    return SubmissionMapper.toResponse(
+      submission,
     );
   }
-
-  if (role === UserRole.STUDENT) {
-    if (
-      submission.assignedCase.studentId !==
-      userId
-    ) {
-      throw new ForbiddenException(
-        'Access denied',
-      );
-    }
-  }
-
-  if (role === UserRole.TEACHER) {
-    if (
-      submission.assignedCase.assignment.teacherId !==
-      userId
-    ) {
-      throw new ForbiddenException(
-        'Access denied',
-      );
-    }
-  }
-
-  return SubmissionMapper.toResponse(
-    submission,
-  );
-}
 
   async update(
-  submissionId: string,
-  studentId: string,
-  dto: UpdateSubmissionDto,
-) {
-  const submission =
-    await this.prisma.submission.findUnique({
-      where: { id: submissionId },
-      include: {
-        assignedCase: true,
-      },
-    });
-
-  if (!submission) {
-    throw new NotFoundException(
-      'Submission not found',
-    );
-  }
-
-  if (
-    submission.assignedCase.studentId !==
-    studentId
+    submissionId: string,
+    studentId: string,
+    dto: UpdateSubmissionDto,
   ) {
-    throw new ForbiddenException(
-      'Access denied',
+    const submission =
+      await this.prisma.submission.findUnique({
+        where: { id: submissionId },
+        include: submissionInclude,
+      });
+
+    if (!submission) {
+      throw new NotFoundException(
+        'Submission not found',
+      );
+    }
+
+    if (
+      submission.assignedCase.studentId !==
+      studentId
+    ) {
+      throw new ForbiddenException(
+        'Access denied',
+      );
+    }
+
+    if (!submission.assignedCase.assignment.isPublished) {
+      throw new BadRequestException('La actividad ya no esta disponible');
+    }
+
+    if (!submission.assignedCase.assignment.classroom.isActive) {
+      throw new BadRequestException('La clase ya no esta disponible');
+    }
+
+    if (
+      submission.status !==
+      SubmissionStatus.DRAFT
+    ) {
+      throw new BadRequestException(
+        'Submission already submitted',
+      );
+    }
+
+    const updated =
+      await this.prisma.submission.update({
+        where: { id: submissionId },
+        data: dto,
+        include: submissionInclude,
+      });
+
+    return SubmissionMapper.toResponse(
+      updated,
     );
   }
-
-  if (
-    submission.status !==
-    SubmissionStatus.DRAFT
-  ) {
-    throw new BadRequestException(
-      'Submission already submitted',
-    );
-  }
-
-  const updated =
-    await this.prisma.submission.update({
-      where: { id: submissionId },
-      data: dto,
-      include: submissionInclude,
-    });
-
-  return SubmissionMapper.toResponse(
-    updated,
-  );
-}
 
   async submit(
-  submissionId: string,
-  studentId: string,
-) {
-  const submission =
-    await this.prisma.submission.findUnique({
-      where: { id: submissionId },
-      include: {
-        assignedCase: true,
-      },
-    });
-
-  if (!submission) {
-    throw new NotFoundException(
-      'Submission not found',
-    );
-  }
-
-  if (
-    submission.assignedCase.studentId !==
-    studentId
+    submissionId: string,
+    studentId: string,
   ) {
-    throw new ForbiddenException(
-      'Access denied',
+    const submission =
+      await this.prisma.submission.findUnique({
+        where: { id: submissionId },
+        include: submissionInclude,
+      });
+
+    if (!submission) {
+      throw new NotFoundException(
+        'Entrega no encontrada',
+      );
+    }
+
+    if (
+      submission.assignedCase.studentId !==
+      studentId
+    ) {
+      throw new ForbiddenException(
+        'No tienes acceso a esta entrega',
+      );
+    }
+
+    if (!submission.assignedCase.assignment.isPublished) {
+      throw new BadRequestException('La actividad ya no esta disponible');
+    }
+
+    if (!submission.assignedCase.assignment.classroom.isActive) {
+      throw new BadRequestException('La clase ya no esta disponible');
+    }
+
+    if (
+      submission.status !==
+      SubmissionStatus.DRAFT
+    ) {
+      throw new BadRequestException(
+        'La entrega ya fue enviada',
+      );
+    }
+
+    if (
+      !submission.sceneManagement ||
+      !submission.sss ||
+      !submission.primaryTest ||
+      !submission.sample ||
+      !submission.opqrst ||
+      !submission.presumptiveDiagnosis ||
+      !submission.priority ||
+      submission.transferDecision ===
+      null ||
+      !submission.treatmentPlan ||
+      !submission.reportPatient
+    ) {
+      throw new BadRequestException(
+        'La entrega esta incompleta',
+      );
+    }
+
+    const updated =
+      await this.prisma.submission.update({
+        where: { id: submissionId },
+        data: {
+          status:
+            SubmissionStatus.SUBMITTED,
+        },
+        include: submissionInclude,
+      });
+
+    return SubmissionMapper.toResponse(
+      updated,
     );
   }
-
-  if (
-    submission.status !==
-    SubmissionStatus.DRAFT
-  ) {
-    throw new BadRequestException(
-      'Submission already submitted',
-    );
-  }
-
-  if (
-    !submission.sceneManagement ||
-    !submission.sss ||
-    !submission.primaryTest ||
-    !submission.sample ||
-    !submission.opqrst ||
-    !submission.presumptiveDiagnosis ||
-    !submission.priority ||
-    submission.transferDecision ===
-    null ||
-    !submission.treatmentPlan ||
-    !submission.reportPatient
-  ) {
-    throw new BadRequestException(
-      'Submission is incomplete',
-    );
-  }
-
-  const updated =
-    await this.prisma.submission.update({
-      where: { id: submissionId },
-      data: {
-        status:
-          SubmissionStatus.SUBMITTED,
-      },
-      include: submissionInclude,
-    });
-
-  return SubmissionMapper.toResponse(
-    updated,
-  );
-}
 }

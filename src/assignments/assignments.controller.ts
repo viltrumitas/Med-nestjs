@@ -12,10 +12,7 @@ import {
 
 import {
   ApiBearerAuth,
-  ApiForbiddenResponse,
-  ApiNotFoundResponse,
   ApiOperation,
-  ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
 
@@ -43,6 +40,9 @@ export class AssignmentsController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.TEACHER)
   @Post()
+  @ApiOperation({
+    summary: 'Crear actividad',
+  })
   create(
     @Body() dto: CreateAssignmentDto,
     @CurrentUser() user: JwtPayload,
@@ -56,6 +56,9 @@ export class AssignmentsController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.TEACHER)
   @Get('my')
+  @ApiOperation({
+    summary: 'Listar mis actividades'
+  })
   findMyAssignments(@CurrentUser() user: JwtPayload) {
     return this.assignmentsService.findMyAssignments(user.sub);
   }
@@ -66,6 +69,9 @@ export class AssignmentsController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.TEACHER)
   @Get('my/published-cases')
+  @ApiOperation({
+    summary: 'Listar mis casos publicados'
+  })
   findMyPublishedCases(@CurrentUser() user: JwtPayload) {
     return this.assignmentsService.findMyPublishedCases(user.sub);
   }
@@ -74,9 +80,13 @@ export class AssignmentsController {
   // GET BY ID
   // =========================
   @UseGuards(JwtAuthGuard)
+  @Roles(UserRole.TEACHER)
   @Get(':id')
-  findOne(@Param('id', ParseUUIDPipe) id: string) {
-    return this.assignmentsService.findOne(id);
+  @ApiOperation({
+    summary: 'Obtener una actividad por id'
+  })
+  findOne(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: JwtPayload) {
+    return this.assignmentsService.findOne(id, user.sub);
   }
 
   // =========================
@@ -85,11 +95,33 @@ export class AssignmentsController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.TEACHER)
   @Patch(':id/publish')
+  @ApiOperation({
+    summary: 'Publicar actividad'
+  })
   publish(
     @Param('id', ParseUUIDPipe) id: string,
     @CurrentUser() user: JwtPayload,
   ) {
     return this.assignmentsService.publish(id, user.sub);
+  }
+
+  // ========================
+  // UNPUBLISH
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.TEACHER)
+  @Patch(':id/unpublish')
+  @ApiOperation({
+    summary: 'Despublicar actividad',
+  })
+  unpublish(
+    @Param('id', ParseUUIDPipe)
+    id: string,
+
+    @CurrentUser()
+    user: JwtPayload,
+  ) {
+    return this.assignmentsService.unpublish(id, user.sub);
   }
 
   // =========================
@@ -98,6 +130,9 @@ export class AssignmentsController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.TEACHER)
   @Delete(':id')
+  @ApiOperation({
+    summary: 'Borrar actividad'
+  })
   deleteAssignment(
     @Param('id', ParseUUIDPipe) id: string,
     @CurrentUser() user: JwtPayload,

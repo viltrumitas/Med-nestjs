@@ -1,6 +1,6 @@
 import { CaseEntity } from '../entities/case.entity';
 import { CaseResponseDto } from '../dto/case-response.dto';
-import { TeacherResponseDto } from '../dto/teacher-response.dto';
+import { TeacherResponseDto } from 'src/users/dto/teacher-response.dto';
 
 export class CaseMapper {
   static toResponse(caseEntity: CaseEntity): CaseResponseDto {

@@ -1,18 +1,13 @@
 import { SubmissionResponseDto } from "../dto/submission-response.dto";
-import { StudentResponseDto } from "../dto/student-response.dto";
+import { StudentResponseDto } from "src/users/dto/student-response.dto";
 import { SubmissionEntity } from "../entities/submission.entity";
 import { AssignmentMapper } from "src/assignments/mapper/assignment.mapper";
 import { CaseMapper } from "src/cases/mappers/case.mapper";
+import { StudentMapper } from "src/users/mapper/student.mapper";
 
 export class SubmissionMapper {
   static toResponse(submissionEntity: SubmissionEntity): SubmissionResponseDto {
-    const student: StudentResponseDto = {
-      id: submissionEntity.assignedCase.student.id,
-      matricula: submissionEntity.assignedCase.student.matricula,
-      firstName: submissionEntity.assignedCase.student.firstName,
-      lastName: submissionEntity.assignedCase.student.lastName,
-      role: submissionEntity.assignedCase.student.role,
-    };
+    const student = StudentMapper.toResponse(submissionEntity.assignedCase.student);
 
     return {
       id: submissionEntity.id,

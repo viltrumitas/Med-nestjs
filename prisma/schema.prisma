@@ -18,11 +18,60 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  // Relaciones
-  authoredCases      Case[]         @relation("TeacherCases")
-  assignmentsCreated Assignment[]   @relation("TeacherAssignments")
-  assignedCases      AssignedCase[]
-  reviews            Review[]
+  // Casos creados
+  authoredCases Case[] @relation("TeacherCases")
+
+  // Clases creadas
+
+  classrooms Classroom[] @relation("TeacherClassrooms")
+
+  // Inscripciones (alumno)
+  enrollments Enrollment[]
+
+  // Entregas
+  assignedCases AssignedCase[]
+
+  // Revisiones
+  reviews Review[]
+}
+
+model Classroom {
+  id String @id @default(uuid())
+
+  name        String
+  description String?
+
+  code String @unique @db.VarChar(8)
+
+  isActive Boolean @default(true)
+
+  teacherId String
+  teacher   User   @relation("TeacherClassrooms", fields: [teacherId], references: [id])
+
+  assignments Assignment[]
+
+  enrollments Enrollment[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([teacherId])
+  @@unique([teacherId, name])
+}
+
+model Enrollment {
+  id String @id @default(uuid())
+
+  classroomId String
+  studentId   String
+
+  classroom Classroom @relation(fields: [classroomId], references: [id], onDelete: Cascade)
+
+  student User @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  joinedAt DateTime @default(now())
+
+  @@unique([classroomId, studentId])
 }
 
 model AuthorizedTeacher {
@@ -43,14 +92,18 @@ model Assignment {
 
   isPublished Boolean @default(false)
 
-  teacherId String
-  teacher   User   @relation("TeacherAssignments", fields: [teacherId], references: [id])
+  classroomId String
+  classroom   Classroom @relation(fields: [classroomId], references: [id], onDelete: Cascade)
 
   cases         AssignmentCase[] @relation("AssignmentCases")
   assignedCases AssignedCase[]
 
+  dueDate DateTime?
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@index([classroomId])
 }
 
 model AssignmentCase {
@@ -136,7 +189,6 @@ model Submission {
   id String @id @default(uuid())
 
   assignedCaseId String @unique
-  studentId      String
 
   assignedCase AssignedCase @relation(fields: [assignedCaseId], references: [id], onDelete: Cascade)
 

@@ -1,5 +1,5 @@
-import { TeacherResponseDto } from "src/cases/dto/teacher-response.dto";
-import { StudentResponseDto } from "src/submissions/dto/student-response.dto";
+import { TeacherResponseDto } from "src/users/dto/teacher-response.dto"; 
+import { StudentResponseDto } from "src/users/dto/student-response.dto";
 import { SceneManagementDto } from "./sceneManagment.dto";
 import { PrimaryAssessmentDto } from "./primaryAssessment.dto";
 import { PatientPriority } from "./patientPriority.dto";

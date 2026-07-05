@@ -3,7 +3,11 @@ import { Prisma } from '@prisma/client';
 export const assignedCaseListInclude = {
   assignment: {
     include: {
-      teacher: true,
+      classroom: {
+        include: {
+          teacher: true,
+        },
+      },
     },
   },
   case: {

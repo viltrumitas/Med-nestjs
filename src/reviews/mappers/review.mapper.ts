@@ -1,8 +1,8 @@
 import { ReviewEntity } from '../entities/review.entity';
 import { ReviewResponseDto } from '../dto/review-response.dto';
 
-import { TeacherResponseDto } from 'src/cases/dto/teacher-response.dto';
-import { StudentResponseDto } from 'src/submissions/dto/student-response.dto';
+import { TeacherResponseDto } from 'src/users/dto/teacher-response.dto';
+import { StudentResponseDto } from 'src/users/dto/student-response.dto';
 
 import { SceneManagementDto } from '../dto/sceneManagment.dto';
 import { PrimaryAssessmentDto } from '../dto/primaryAssessment.dto';
@@ -12,26 +12,18 @@ import { FocusedAssessmentDto } from '../dto/focusedAssessment.dto';
 import { PhysicalExaminationDto } from '../dto/physicalExamination.dto';
 import { OpqrstDto, SamplerDto } from '../dto/anamnesis.dto';
 import { OtherInterventionsDto } from '../dto/otherInterventions.dto';
+import { TeacherMapper } from 'src/users/mapper/teacher.mapper';
+import { StudentMapper } from 'src/users/mapper/student.mapper';
+import { AssignmentMapper } from 'src/assignments/mapper/assignment.mapper';
+import { CaseMapper } from 'src/cases/mappers/case.mapper';
 
 export class ReviewMapper {
   static toResponse(reviewEntity: ReviewEntity): ReviewResponseDto {
-    const teacher: TeacherResponseDto = {
-      id: reviewEntity.teacher.id,
-      matricula: reviewEntity.teacher.matricula,
-      firstName: reviewEntity.teacher.firstName,
-      lastName: reviewEntity.teacher.lastName,
-      role: reviewEntity.teacher.role,
-    };
+    const teacher = TeacherMapper.toResponse(reviewEntity.teacher);
 
     const assignedCase = reviewEntity.submission.assignedCase;
 
-    const student: StudentResponseDto = {
-      id: assignedCase.student.id,
-      matricula: assignedCase.student.matricula,
-      firstName: assignedCase.student.firstName,
-      lastName: assignedCase.student.lastName,
-      role: assignedCase.student.role,
-    };
+    const student = StudentMapper.toResponse(assignedCase.student);
 
     const anamnesis = reviewEntity.anamnesis as unknown as {
       sampler: SamplerDto;
@@ -46,15 +38,9 @@ export class ReviewMapper {
       teacher,
       student,
 
-      case: {
-        ...assignedCase.case,
-        teacher: assignedCase.case.author,
-      },
+      case: CaseMapper.toResponse(assignedCase.case),
 
-      assignment: {
-        ...assignedCase.assignment,
-        teacher: assignedCase.assignment.teacher,
-      },
+      assignment: AssignmentMapper.toResponse(assignedCase.assignment),
 
 
       sceneManagement: reviewEntity.sceneManagement as unknown as SceneManagementDto,

@@ -1,5 +1,5 @@
 import { SubmissionStatus } from '@prisma/client';
-import { StudentResponseDto } from 'src/submissions/dto/student-response.dto';
+import { StudentResponseDto } from 'src/users/dto/student-response.dto'; 
 import { CaseResponseDto } from 'src/cases/dto/case-response.dto';
 
 export class AssignmentAssignedCaseSubmissionDto {

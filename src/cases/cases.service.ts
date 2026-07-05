@@ -91,14 +91,32 @@ export class CasesService {
     return cases.map(CaseMapper.toResponse);
   }
 
-  async findOne(id: string) {
+  async findPublished(teacherId: string) {
+    const cases = await this.prisma.case.findMany({
+      where: {
+        teacherId,
+        isPublished: true,
+      },
+      include: caseInclude,
+      orderBy: {
+        createdAt: 'desc'
+      },
+    });
+    return cases.map(CaseMapper.toResponse);
+  }
+
+  async findOne(id: string, teacherId?: string) {
     const caseEntity = await this.prisma.case.findUnique({
       where: { id },
       include: caseInclude,
     });
 
     if (!caseEntity) {
-      throw new NotFoundException('Case not found');
+      throw new NotFoundException('Caso no encontrado');
+    }
+
+    if (!caseEntity.isPublished && caseEntity.teacherId !== teacherId) {
+      throw new ForbiddenException('No tienes acceso a este caso');
     }
 
     return CaseMapper.toResponse(caseEntity);
@@ -110,15 +128,15 @@ export class CasesService {
     });
 
     if (!caseEntity) {
-      throw new NotFoundException('Case not found');
+      throw new NotFoundException('Caso no encontrado');
     }
 
     if (caseEntity.teacherId !== teacherId) {
-      throw new ForbiddenException('You can only publish your own cases');
+      throw new ForbiddenException('Solo puedes publicar tus propios casos');
     }
 
     if (caseEntity.isPublished) {
-      throw new BadRequestException('Case is already published');
+      throw new BadRequestException('El caso ya ha sido publicado');
     }
 
     const updatedCase = await this.prisma.case.update({
@@ -138,11 +156,24 @@ export class CasesService {
     });
 
     if (!caseEntity) {
-      throw new NotFoundException('Case not found');
+      throw new NotFoundException('Caso no encontrado');
     }
 
     if (caseEntity.teacherId !== teacherId) {
-      throw new ForbiddenException(`You can't unpublish this case`);
+      throw new ForbiddenException(`No puedes despublicar este caso`);
+    }
+
+    const usedCase = await this.prisma.assignmentCase.findFirst({
+      where: {
+        caseId: id,
+        assignment: {
+          isPublished: true,
+        },
+      },
+    })
+
+    if (usedCase) {
+      throw new BadRequestException('No puedes despublicar un caso que pertenece a una actividad publicada');
     }
 
     const updatedCase = await this.prisma.case.update({
@@ -162,11 +193,21 @@ export class CasesService {
     });
 
     if (!caseEntity) {
-      throw new NotFoundException('Case not found');
+      throw new NotFoundException('Caso no encontrado');
     }
 
     if (caseEntity.teacherId !== teacherId) {
-      throw new ForbiddenException('You can only delete your own cases');
+      throw new ForbiddenException('Solo puedes borrar tus propios casos');
+    }
+
+    const usages = await this.prisma.assignmentCase.count({
+      where: {
+        caseId: id,
+      },
+    });
+
+    if (usages > 0) {
+      throw new BadRequestException('No puedes eliminar un caso que esta siendo utilizado en una actividad');
     }
 
     return this.prisma.case.delete({

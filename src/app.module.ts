@@ -8,9 +8,8 @@ import { CasesModule } from './cases/cases.module';
 import { ReviewsModule } from './reviews/reviews.module';
 import { SubmissionsModule } from './submissions/submissions.module';
 import { AssignmentsModule } from './assignments/assignments.module';
-import { AssignedCaseService } from './assigned-case/assigned-case.service';
-import { AssignedCaseController } from './assigned-case/assigned-case.controller';
 import { AssignedCaseModule } from './assigned-case/assigned-case.module';
+import { ClassroomsModule } from './classrooms/classroom.module';
 
 @Module({
   imports: [
@@ -26,8 +25,7 @@ import { AssignedCaseModule } from './assigned-case/assigned-case.module';
     SubmissionsModule,
     AssignmentsModule,
     AssignedCaseModule,
+    ClassroomsModule,
   ],
-  providers: [AssignedCaseService],
-  controllers: [AssignedCaseController],
 })
 export class AppModule {}
