@@ -35,22 +35,6 @@ export class AssignmentsController {
   constructor(private readonly assignmentsService: AssignmentsService) { }
 
   // =========================
-  // CREATE
-  // =========================
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.TEACHER)
-  @Post()
-  @ApiOperation({
-    summary: 'Crear actividad',
-  })
-  create(
-    @Body() dto: CreateAssignmentDto,
-    @CurrentUser() user: JwtPayload,
-  ) {
-    return this.assignmentsService.create(dto, user.sub);
-  }
-
-  // =========================
   // MY ASSIGNMENTS
   // =========================
   @UseGuards(JwtAuthGuard, RolesGuard)

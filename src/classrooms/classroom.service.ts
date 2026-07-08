@@ -12,6 +12,9 @@ import { classroomListInclude, classroomDetailInclude } from "./entities/classro
 import { CreateClassroomDto } from "./dto/create-classroom.dto";
 import { UpdateClassroomDto } from "./dto/update-classroom.dto";
 import { generateUniqueCode } from "src/common/utils/generate-code";
+import { CreateAssignmentDto } from "src/assignments/dto/create-assignment.dto";
+import { AssignmentMapper } from "src/assignments/mapper/assignment.mapper";
+import { assignmentDetailInclude } from "src/assignments/entities/assignment.entity";
 
 @Injectable()
 export class ClassroomsService {
@@ -52,6 +55,76 @@ export class ClassroomsService {
     return ClassroomMapper.toResponse(classroom);
   }
 
+  async createAssignment(classroomId: string, data: CreateAssignmentDto, teacherId: string) {
+
+    if (!data.caseIds || data.caseIds.length < 1) {
+      throw new BadRequestException('Selecciona al menos un caso');
+    }
+
+    const classroom = await this.prisma.classroom.findFirst({
+      where: {
+        id: classroomId,
+        teacherId,
+        isActive: true,
+      },
+    });
+
+    if (!classroom) {
+      throw new ForbiddenException('No puedes crear actividades en esta clase');
+    }
+
+    const existing = await this.prisma.assignment.findFirst({
+      where: {
+        title: data.title,
+        classroomId,
+      },
+    });
+
+    if (existing) {
+      throw new BadRequestException(
+        'Ya existe una actividad con ese titulo',
+      );
+    }
+
+    const cases = await this.prisma.case.findMany({
+      where: {
+        id: {
+          in: data.caseIds,
+        },
+        author: {
+          id: teacherId
+        },
+        isPublished: true,
+      },
+    });
+
+    if (cases.length !== data.caseIds.length) {
+      throw new BadRequestException('Uno o mas casos no existen o no te pertenecen');
+    }
+
+    const assignment = await this.prisma.assignment.create({
+      data: {
+        title: data.title,
+        description: data.description,
+
+        classroom: {
+          connect: {
+            id: classroomId
+          }
+        },
+
+        cases: {
+          create: data.caseIds.map((caseId) => ({
+            caseId,
+          })),
+        },
+      },
+      include: assignmentDetailInclude,
+    });
+
+    return AssignmentMapper.toResponse(assignment);
+  }
+
   async findMyClassrooms(teacherId: string) {
     const classrooms = await this.prisma.classroom.findMany({
       where: {
@@ -63,7 +136,7 @@ export class ClassroomsService {
       },
     });
 
-    return classrooms.map(ClassroomMapper.toSummary);
+    return classrooms.map(ClassroomMapper.toResponse);
   }
 
   async findOne(id: string, userId: string) {

@@ -31,12 +31,13 @@ import { Roles } from '../common/decorators/roles.decorator';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 
 import type { JwtPayload } from '../common/types/jwt-payload.type';
+import { CreateAssignmentDto } from 'src/assignments/dto/create-assignment.dto';
 
 @ApiTags('Classrooms')
 @ApiBearerAuth('access_token')
 @Controller('classrooms')
 export class ClassroomsController {
-  constructor(private readonly classroomsService: ClassroomsService) {}
+  constructor(private readonly classroomsService: ClassroomsService) { }
 
   // =========================
   // CREATE CLASSROOM (TEACHER)
@@ -50,6 +51,23 @@ export class ClassroomsController {
     @CurrentUser() user: JwtPayload,
   ) {
     return this.classroomsService.create(dto, user.sub);
+  }
+
+  // =========================
+  // CREATE
+  // =========================
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.TEACHER)
+  @Post(':id/assignments')
+  @ApiOperation({
+    summary: 'Crear actividad',
+  })
+  createAssignment(
+    @Param('id', ParseUUIDPipe) classroomId: string,
+    @Body() dto: CreateAssignmentDto,
+    @CurrentUser() user: JwtPayload,
+  ) {
+    return this.classroomsService.createAssignment(classroomId, dto, user.sub);
   }
 
   // =========================

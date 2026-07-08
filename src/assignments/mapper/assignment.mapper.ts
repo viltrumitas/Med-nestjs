@@ -55,6 +55,7 @@ export class AssignmentMapper {
     return {
       id: assignment.id,
       title: assignment.title,
+      description: assignment.description ?? '',
       isPublished: assignment.isPublished,
     };
   }

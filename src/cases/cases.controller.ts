@@ -107,8 +107,8 @@ export class CasesController {
   @ApiNotFoundResponse({
     description: 'Caso no encontrado',
   })
-  findOne(@Param('id', ParseUUIDPipe) id: string) {
-    return this.casesService.findOne(id);
+  findOne(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: JwtPayload) {
+    return this.casesService.findOne(id, user.sub);
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)

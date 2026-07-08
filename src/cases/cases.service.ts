@@ -117,7 +117,7 @@ export class CasesService {
 
     if (!caseEntity.isPublished && caseEntity.teacherId !== teacherId) {
       throw new ForbiddenException('No tienes acceso a este caso');
-    }
+    } 
 
     return CaseMapper.toResponse(caseEntity);
   }
