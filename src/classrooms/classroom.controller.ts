@@ -88,7 +88,7 @@ export class ClassroomsController {
   // MY CLASSROOMS (TEACHER)
   // =========================
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.TEACHER)
+  @Roles(UserRole.TEACHER, UserRole.STUDENT)
   @Get('my')
   @ApiOperation({ summary: 'Mis classrooms (teacher)' })
   findMyClassrooms(@CurrentUser() user: JwtPayload) {

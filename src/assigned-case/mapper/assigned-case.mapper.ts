@@ -2,7 +2,7 @@ import { AssignmentMapper } from '../../assignments/mapper/assignment.mapper';
 import { CaseMapper } from '../../cases/mappers/case.mapper';
 import { StudentMapper } from 'src/users/mapper/student.mapper';
 
-import { AssignedCaseListEntity } from '../entities/assigned-case.entity';
+import { AssignedCaseDetailEntity, AssignedCaseListEntity } from '../entities/assigned-case.entity';
 import { AssignedCaseResponseDto } from '../dto/assigned-case-response.dto';
 
 import { AssignmentAssignedCaseEntity } from 'src/assignments/entities/assignment.entity';
@@ -73,6 +73,26 @@ export class AssignedCaseMapper {
 
       assignment: AssignmentMapper.toSummary(assignedCase.assignment),
       case: CaseMapper.toSummary(assignedCase.case),
+
+      submission: this.mapSubmission(assignedCase.submission),
+
+      assignedAt: assignedCase.assignedAt,
+    };
+  }
+
+  static toDetailResponse(
+    assignedCase: AssignedCaseDetailEntity
+  ): AssignedCaseResponseDto {
+    return {
+      id: assignedCase.id,
+
+      assignment: AssignmentMapper.toResponse(
+        assignedCase.assignment
+      ),
+
+      case: CaseMapper.toResponse(
+        assignedCase.case
+      ),
 
       submission: this.mapSubmission(assignedCase.submission),
 

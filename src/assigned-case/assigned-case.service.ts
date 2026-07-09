@@ -63,7 +63,9 @@ export class AssignedCaseService {
         assignedAt: 'desc',
       },
     });
-    return assignedCases.map(AssignedCaseMapper.toSummary)
+    return assignedCases.map(
+      (assignedCase) => AssignedCaseMapper.toSummary(assignedCase)
+    );
   }
 
   async findOne(
@@ -98,7 +100,7 @@ export class AssignedCaseService {
       throw new ForbiddenException('La clase no esta disponible');
     }
 
-    return AssignedCaseMapper.toResponse(
+    return AssignedCaseMapper.toDetailResponse(
       assignedCase,
     );
   }
