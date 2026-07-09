@@ -85,14 +85,14 @@ export class ClassroomsController {
   }
 
   // =========================
-  // MY CLASSROOMS (TEACHER)
+  // MY CLASSROOMS
   // =========================
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.TEACHER, UserRole.STUDENT)
   @Get('my')
-  @ApiOperation({ summary: 'Mis classrooms (teacher)' })
+  @ApiOperation({ summary: 'Mis classrooms' })
   findMyClassrooms(@CurrentUser() user: JwtPayload) {
-    return this.classroomsService.findMyClassrooms(user.sub);
+    return this.classroomsService.findMyClassrooms(user.sub, user.role);
   }
 
   // =========================
@@ -107,7 +107,7 @@ export class ClassroomsController {
     @Param('id', ParseUUIDPipe) id: string,
     @CurrentUser() user: JwtPayload,
   ) {
-    return this.classroomsService.findOne(id, user.sub);
+    return this.classroomsService.findOne(id, user.sub, user.role);
   }
 
   // =========================

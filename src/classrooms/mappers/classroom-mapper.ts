@@ -12,6 +12,8 @@ import { ClassroomSummaryResponseDto } from "../dto/assignment-summary-response.
 import { TeacherMapper } from "src/users/mapper/teacher.mapper";
 import { StudentMapper } from "src/users/mapper/student.mapper";
 import { AssignmentMapper } from "src/assignments/mapper/assignment.mapper";
+import { ClassroomTeacherResponse } from "../dto/classroom-teacher-response.dto";
+import { ClassroomStudentResponse } from "../dto/classroom-student-response.dto";
 
 export class ClassroomMapper {
   static toResponse(
@@ -24,7 +26,7 @@ export class ClassroomMapper {
       code: classroom.code,
       isActive: classroom.isActive,
 
-      teacher: TeacherMapper.toResponse(classroom.teacher),
+      teacher: TeacherMapper.toSummaryTeacher(classroom.teacher),
 
       studentsCount: classroom._count.enrollments,
       assignmentsCount: classroom._count.assignments,
@@ -55,7 +57,53 @@ export class ClassroomMapper {
       ),
 
       students: classroom.enrollments.map((enrollment) =>
-        StudentMapper.toResponse(enrollment.student),
+        StudentMapper.toSummaryStudent(enrollment.student),
+      ),
+    };
+  }
+
+  static toTeacherResponse(
+    classroom: ClassroomDetailEntity,
+  ): ClassroomTeacherResponse {
+    return {
+      id: classroom.id,
+      name: classroom.name,
+      description: classroom.description,
+      code: classroom.code,
+      isActive: classroom.isActive,
+      teacher: TeacherMapper.toSummaryTeacher(
+        classroom.teacher,
+      ),
+      studentsCount: classroom._count.enrollments,
+      assignmentsCount: classroom._count.assignments,
+      assignments: classroom.assignments.map(
+        assignment => 
+          AssignmentMapper.toSummary(assignment),
+      ),
+      students: classroom.enrollments.map(
+        enrollment => 
+          StudentMapper.toSummaryStudent(
+            enrollment.student,
+          ),
+      ),
+      createdAt: classroom.createdAt,
+      updatedAt: classroom.updatedAt,
+    }
+  }
+
+  static toStudentResponse(
+    classroom: ClassroomDetailEntity,
+  ): ClassroomStudentResponse {
+    return {
+      id: classroom.id,
+      name: classroom.name,
+      description: classroom.description,
+      teacher: TeacherMapper.toSummaryTeacher(
+        classroom.teacher,
+      ),
+      assignments: classroom.assignments.map(
+        assignment =>
+          AssignmentMapper.toSummary(assignment),
       ),
     };
   }

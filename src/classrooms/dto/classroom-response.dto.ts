@@ -1,4 +1,5 @@
 import { TeacherResponseDto } from "src/users/dto/teacher-response.dto";
+import { TeacherSummaryResponse } from "src/users/dto/teacher-summary.dto";
 
 export class ClassroomResponseDto {
   id!: string;
@@ -9,7 +10,7 @@ export class ClassroomResponseDto {
 
   code!: string;
 
-  teacher!: TeacherResponseDto;
+  teacher!: TeacherSummaryResponse;
 
   isActive!: boolean;
 

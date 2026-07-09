@@ -14,21 +14,18 @@ export class StudentMapper {
     };
   }
 
-  static toSummaryTeacher(user: User): TeacherSummaryResponse {
-    return {
-      id: user.id,
-      firstName: user.firstName,
-      lastName: user.lastName,
-      role: user.role,
-    }
-  }
 
-  static toSummaryStudent(user: User): StudentSummaryResponse {
+  static toSummaryStudent(
+    user: {
+      id: string;
+      firstName: string;
+      lastName: string;
+      matricula?: number;
+    }): StudentSummaryResponse {
     return {
       id: user.id,
       firstName: user.firstName,
       lastName: user.lastName,
-      role: user.role,
     }
   }
 }

@@ -15,6 +15,7 @@ import { generateUniqueCode } from "src/common/utils/generate-code";
 import { CreateAssignmentDto } from "src/assignments/dto/create-assignment.dto";
 import { AssignmentMapper } from "src/assignments/mapper/assignment.mapper";
 import { assignmentDetailInclude } from "src/assignments/entities/assignment.entity";
+import { UserRole } from "@prisma/client";
 
 @Injectable()
 export class ClassroomsService {
@@ -125,21 +126,43 @@ export class ClassroomsService {
     return AssignmentMapper.toResponse(assignment);
   }
 
-  async findMyClassrooms(teacherId: string) {
-    const classrooms = await this.prisma.classroom.findMany({
-      where: {
-        teacherId,
-      },
-      include: classroomListInclude,
-      orderBy: {
-        createdAt: 'desc',
-      },
-    });
+  async findMyClassrooms(userId: string, role: UserRole) {
 
-    return classrooms.map(ClassroomMapper.toResponse);
+    if (role === UserRole.TEACHER) {
+      const classrooms = await this.prisma.classroom.findMany({
+        where: {
+          teacherId: userId,
+        },
+        include: classroomListInclude,
+        orderBy: {
+          createdAt: 'desc',
+        },
+      });
+
+      return classrooms.map(ClassroomMapper.toResponse);
+    }
+
+    if (role === UserRole.STUDENT) {
+      const classrooms = await this.prisma.classroom.findMany({
+        where: {
+          enrollments: {
+            some: {
+              studentId: userId,
+            },
+          },
+        },
+        include: classroomListInclude,
+        orderBy: {
+          createdAt: 'desc',
+        },
+      });
+
+      return classrooms.map(ClassroomMapper.toResponse);
+    }
+    return [];
   }
 
-  async findOne(id: string, userId: string) {
+  async findOne(id: string, userId: string, role: UserRole) {
     const classroom = await this.prisma.classroom.findUnique({
       where: {
         id
@@ -151,20 +174,43 @@ export class ClassroomsService {
       throw new NotFoundException('Classroom no encontrado');
     }
 
-    const isTeacher = classroom.teacherId === userId;
+    if (role === UserRole.TEACHER) {
+      if (classroom.teacherId !== userId) {
+        throw new ForbiddenException(
+          'No tienes acceso a este classroom'
+        )
+      }
 
-    const isStudent = await this.prisma.enrollment.findFirst({
-      where: {
-        classroomId: classroom.id,
-        studentId: userId,
-      },
-    });
-
-    if (!isTeacher && !isStudent) {
-      throw new ForbiddenException('No tienes acceso a este classroom');
+      return ClassroomMapper.toTeacherResponse(
+        classroom,
+      );
     }
 
-    return ClassroomMapper.toDetailResponse(classroom);
+    if (role === UserRole.STUDENT) {
+      const enrollment =
+        await this.prisma.enrollment.findFirst({
+          where: {
+            classroomId: id,
+            studentId: userId,
+          },
+        });
+      
+      if (!enrollment) {
+        throw new ForbiddenException(
+          'No perteneces a este classroom',
+        );
+      }
+
+      classroom.assignments =
+        classroom.assignments.filter(
+          assignment =>
+            assignment.isPublished,
+        );
+      
+      return ClassroomMapper.toStudentResponse(
+        classroom,
+      );
+    }
   }
 
   async update(id: string, teacherId: string, dto: UpdateClassroomDto) {

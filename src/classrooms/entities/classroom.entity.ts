@@ -1,7 +1,13 @@
 import { Prisma } from '@prisma/client';
 
 export const classroomListInclude = {
-  teacher: true,
+  teacher: {
+    select: {
+      id: true,
+      firstName: true,
+      lastName: true,
+    }
+  },
   _count: {
     select: {
       enrollments: true,
@@ -11,11 +17,24 @@ export const classroomListInclude = {
 } satisfies Prisma.ClassroomInclude;
 
 export const classroomDetailInclude = {
-  teacher: true,
+  teacher: {
+    select: {
+      id: true,
+      firstName: true,
+      lastName: true,
+    }
+  },
 
   enrollments: {
     include: {
-      student: true,
+      student: {
+        select: {
+          id: true,
+          firstName: true,
+          lastName: true,
+          matricula: true
+        },
+      },
     },
   },
 
