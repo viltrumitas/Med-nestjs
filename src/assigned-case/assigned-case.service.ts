@@ -68,6 +68,48 @@ export class AssignedCaseService {
     );
   }
 
+  async findMyAssignedCasesByAssignment(
+    assignmentId: string,
+    studentId: string,
+  ) {
+
+    const assignedCases =
+      await this.prisma.assignedCase.findMany({
+
+        where: {
+
+          assignmentId,
+
+          studentId,
+
+          assignment: {
+
+            isPublished: true,
+
+            classroom: {
+              isActive: true,
+            },
+
+          },
+
+        },
+
+        include: assignedCaseDetailInclude,
+
+        orderBy: {
+          assignedAt: 'desc',
+        },
+
+      });
+
+
+    return assignedCases.map(
+      (assignedCase) =>
+        AssignedCaseMapper.toSummary(assignedCase),
+    );
+
+  }
+
   async findOne(
     assignedCaseId: string,
     studentId: string,

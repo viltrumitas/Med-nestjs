@@ -12,11 +12,24 @@ import { UserRole } from '@prisma/client';
 @Roles(UserRole.STUDENT)
 @Controller('assigned-case')
 export class AssignedCaseController {
-  constructor(private readonly assignedCaseService: AssignedCaseService) {}
+  constructor(private readonly assignedCaseService: AssignedCaseService) { }
 
   @Get('my')
   findMyAssignedCases(@CurrentUser() user: JwtPayload) {
     return this.assignedCaseService.findMyAssignedCases(user.sub);
+  }
+
+  @Get('my-assigned-case/:assignmentId')
+  findMyAssignedCasesByAssignment(
+    @Param('assignmentId') assignmentId: string,
+    @CurrentUser() user: JwtPayload,
+  ) {
+
+    return this.assignedCaseService.findMyAssignedCasesByAssignment(
+      assignmentId,
+      user.sub,
+    );
+
   }
 
   @Get(':id')
