@@ -105,6 +105,7 @@ export class ClassroomMapper {
         assignment =>
           AssignmentMapper.toSummary(assignment),
       ),
+      assignmentsCount: classroom._count.assignments,
     };
   }
 }

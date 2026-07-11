@@ -13,4 +13,6 @@ export class ClassroomStudentResponse {
 
   assignments!: AssignmentSummaryResponse[];
 
+  assignmentsCount!: number;
+
 }
