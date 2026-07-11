@@ -194,7 +194,7 @@ export class ClassroomsService {
             studentId: userId,
           },
         });
-      
+
       if (!enrollment) {
         throw new ForbiddenException(
           'No perteneces a este classroom',
@@ -206,7 +206,7 @@ export class ClassroomsService {
           assignment =>
             assignment.isPublished,
         );
-      
+
       return ClassroomMapper.toStudentResponse(
         classroom,
       );
