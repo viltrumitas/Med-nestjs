@@ -58,6 +58,9 @@ export class ReviewsService {
         include: {
           assignedCase: {
             include: {
+              student: true,
+              case: true,
+              
               assignment: {
                 include: {
                   classroom: true,

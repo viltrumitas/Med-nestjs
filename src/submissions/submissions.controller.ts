@@ -44,6 +44,19 @@ export class SubmissionsController {
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.TEACHER)
+  @Get('classroom/:classroomId/pending')
+  findPendingByClassroom(
+    @Param('classroomId') classroomId: string,
+    @CurrentUser() user: JwtPayload,
+  ) {
+    return this.submissionsService.findPendingByClassroom(
+      classroomId,
+      user.sub,
+    );
+  }
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.STUDENT)
   @Patch(':id')
   update(@Param('id') id: string, @Body() dto: UpdateSubmissionDto, @CurrentUser() user: JwtPayload) {
