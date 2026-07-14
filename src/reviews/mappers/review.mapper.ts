@@ -13,10 +13,13 @@ import { StudentMapper } from 'src/users/mapper/student.mapper';
 import { AssignmentMapper } from 'src/assignments/mapper/assignment.mapper';
 import { CaseMapper } from 'src/cases/mappers/case.mapper';
 import { ReviewSummaryResponseDto } from '../dto/review-summary.dto';
+import { SubmissionMapper } from 'src/submissions/mapper/submission.mapper';
 
 export class ReviewMapper {
   static toResponse(reviewEntity: ReviewDetailEntity): ReviewResponseDto {
     const teacher = TeacherMapper.toResponse(reviewEntity.teacher);
+
+    const submission = reviewEntity.submission;
 
     const assignedCase = reviewEntity.submission.assignedCase;
 
@@ -36,6 +39,8 @@ export class ReviewMapper {
       student,
 
       case: CaseMapper.toResponse(assignedCase.case),
+
+      submission: SubmissionMapper.toResponse(submission),
 
       assignment: AssignmentMapper.toResponse(assignedCase.assignment),
 

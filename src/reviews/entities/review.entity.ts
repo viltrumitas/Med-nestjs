@@ -32,8 +32,15 @@ export const reviewListInclude = {
 
 export const reviewDetailInclude = {
   teacher: true,
+
   submission: {
     include: {
+      review: {
+        include: {
+          teacher: true,
+        },
+      },
+
       assignedCase: {
         include: {
           student: true,

@@ -11,6 +11,7 @@ import { OpqrstDto } from "./anamnesis.dto";
 import { OtherInterventionsDto } from "./otherInterventions.dto";
 import { CaseResponseDto } from "src/cases/dto/case-response.dto";
 import { AssignmentResponseDto } from "src/assignments/dto/assignment-response.dto";
+import { SubmissionResponseDto } from "src/submissions/dto/submission-response.dto";
 
 
 export class ReviewResponseDto {
@@ -21,6 +22,8 @@ export class ReviewResponseDto {
   student!: StudentResponseDto;
 
   case!: CaseResponseDto;
+
+  submission!: SubmissionResponseDto;
 
   assignment!: AssignmentResponseDto;
 
