@@ -7,6 +7,7 @@ import { StudentSummaryResponse } from "src/users/dto/student-summary.dto";
 export class SubmissionSummaryResponseDto {
   id!: string;
   reviewId?: string;
+  assignedCaseId!: string;
   student!: StudentSummaryResponse;
   assignment!: AssignmentSummaryResponse;
   case!: CaseSummaryResponseDto;

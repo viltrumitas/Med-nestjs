@@ -216,6 +216,25 @@ export class ReviewsService {
     return reviews.map(ReviewMapper.toSummary);
   }
 
+  async findAllStudents(studentId: string) {
+    const reviews = await this.prisma.review.findMany({
+      where: {
+        submission: {
+          assignedCase: {
+            studentId
+          }
+        }
+      },
+      include: reviewListInclude,
+
+      orderBy: {
+        createdAt: 'desc'
+      }
+    });
+
+    return reviews.map(ReviewMapper.toSummary);
+  }
+
   async update(
     id: string,
     teacherId: string,

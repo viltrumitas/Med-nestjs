@@ -59,23 +59,15 @@ export class ReviewsController {
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.STUDENT, UserRole.TEACHER)
-  @Get(':id')
+  @Roles(UserRole.STUDENT)
+  @Get('my')
   @ApiOperation({
-    summary: 'Obtener evaluación por ID',
+    summary: 'Listar mis evaluaciones del maestro'
   })
-  findById(
-    @Param('id', ParseUUIDPipe)
-    id: string,
-
-    @CurrentUser()
-    user: JwtPayload,
+  findMyReviews(
+    @CurrentUser() user: JwtPayload
   ) {
-    return this.reviewsService.findById(
-      id,
-      user.sub,
-      user.role,
-    );
+    return this.reviewsService.findAllStudents(user.sub);
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)
@@ -98,6 +90,27 @@ export class ReviewsController {
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.STUDENT, UserRole.TEACHER)
+  @Get(':id')
+  @ApiOperation({
+    summary: 'Obtener evaluación por ID',
+  })
+  findById(
+    @Param('id', ParseUUIDPipe)
+    id: string,
+
+    @CurrentUser()
+    user: JwtPayload,
+  ) {
+    return this.reviewsService.findById(
+      id,
+      user.sub,
+      user.role,
+    );
+  }
+
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.TEACHER)
   @Get()
   @ApiOperation({
@@ -111,6 +124,8 @@ export class ReviewsController {
       user.sub,
     );
   }
+
+  
 
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.TEACHER)

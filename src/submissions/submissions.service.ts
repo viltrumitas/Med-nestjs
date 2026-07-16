@@ -44,6 +44,30 @@ export class SubmissionsService {
     return submissions.map(SubmissionMapper.toSummary);
   }
 
+  async findPendingForStudent(studentId: string) {
+    const submissions = await this.prisma.submission.findMany({
+      where: {
+        assignedCase: {
+          studentId,
+          assignment: {
+            isPublished: true,
+            classroom: {
+              isActive: true,
+            },
+          },
+        },
+        review: null,
+      },
+      include: submissionListInclude,
+
+      orderBy: {
+        updatedAt: 'desc',
+      },
+    });
+
+    return submissions.map(SubmissionMapper.toSummary);
+  }
+
   async findPendingByClassroom(
     classroomId: string,
     teacherId: string,

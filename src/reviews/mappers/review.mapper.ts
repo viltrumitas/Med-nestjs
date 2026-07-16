@@ -72,6 +72,8 @@ export class ReviewMapper {
       id: review.id,
       totalScore: review.totalScore,
 
+      teacher: TeacherMapper.toSummaryTeacher(review.teacher),
+
       student: StudentMapper.toSummaryStudent(assignedCase.student),
 
       assignment: {
@@ -85,7 +87,7 @@ export class ReviewMapper {
         title: assignedCase.case.title ?? '',
         consult: assignedCase.case.consult,
         isPublished: assignedCase.case.isPublished,
-        createdAt: new Date(),
+        createdAt: assignedCase.case.createdAt,
       },
 
       createdAt: review.createdAt,

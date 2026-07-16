@@ -30,6 +30,13 @@ export class SubmissionsController {
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.STUDENT)
+  @Get('my-pending')
+  findPendingStudent(@CurrentUser() user: JwtPayload) {
+    return this.submissionsService.findPendingForStudent(user.sub)
+  }
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Get(':id')
   @Roles(UserRole.STUDENT, UserRole.TEACHER)
   findOne(

@@ -22,6 +22,7 @@ export const reviewListInclude = {
               title: true,
               consult: true,
               isPublished: true,
+              createdAt: true,
             },
           },
         },

@@ -52,6 +52,8 @@ export class SubmissionMapper {
     return {
       id: submission.id,
 
+      assignedCaseId: submission.assignedCaseId,
+
       student: StudentMapper.toSummaryStudent(
         submission.assignedCase.student,
       ),
