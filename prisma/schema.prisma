@@ -143,7 +143,7 @@ model Case {
   spo2        Int?
   glucose     Int?
   temperature Float?
-  glasgow     Int?
+  glasgow     Json?
 
   capillaryFiller Float?
   cincinnati      Json?

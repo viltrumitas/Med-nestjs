@@ -3,6 +3,7 @@ import { TeacherResponseDto } from 'src/users/dto/teacher-response.dto';
 import { CaseSummaryResponseDto } from '../dto/case-summary.dto';
 import { CaseDetailEntity } from '../entities/case.entity';
 import { CaseListEntity } from '../entities/case.entity';
+import { Glasgow } from 'src/common/types/glasgow.type';
 
 
 export class CaseMapper {
@@ -42,7 +43,7 @@ export class CaseMapper {
       capillaryFiller: caseEntity.capillaryFiller,
 
       cincinnati: caseEntity.cincinnati as Record<string, any> | null,
-      glasgow: caseEntity.glasgow,
+      glasgow: caseEntity.glasgow as Glasgow | null,
 
       area: caseEntity.area,
 

@@ -1,8 +1,8 @@
 import {
-  IsNumber,
   IsObject,
   IsOptional,
 } from 'class-validator';
+import { GlasgowDto } from './glasgow.dto';
 
 export class NeurologicalDto {
   @IsOptional()
@@ -10,6 +10,5 @@ export class NeurologicalDto {
   cincinnati?: Record<string, any>;
 
   @IsOptional()
-  @IsNumber()
-  glasgow?: number;
+  glasgow?: GlasgowDto;
 }

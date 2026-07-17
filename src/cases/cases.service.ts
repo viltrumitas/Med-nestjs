@@ -26,6 +26,17 @@ export class CasesService {
       throw new BadRequestException('Ya existe un caso con estos datos');
     }
 
+    const glasgowDto = data.neurological.glasgow;
+
+    const glasgow = glasgowDto
+      ? {
+        ocular: glasgowDto.ocular,
+        verbal: glasgowDto.verbal,
+        motora: glasgowDto.motora,
+        total: glasgowDto.ocular + glasgowDto.verbal + glasgowDto.motora,
+      }
+      : undefined;
+
     const createdCase = await this.prisma.case.create({
       data: {
         title: data.general.title,
@@ -49,7 +60,7 @@ export class CasesService {
         capillaryFiller: data.vitalSigns.capillaryFiller,
 
         cincinnati: data.neurological.cincinnati,
-        glasgow: data.neurological.glasgow,
+        glasgow,
 
         area: data.area,
 
@@ -117,7 +128,7 @@ export class CasesService {
 
     if (!caseEntity.isPublished && caseEntity.teacherId !== teacherId) {
       throw new ForbiddenException('No tienes acceso a este caso');
-    } 
+    }
 
     return CaseMapper.toResponse(caseEntity);
   }

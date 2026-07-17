@@ -1,6 +1,7 @@
 import { TeacherResponseDto } from 'src/users/dto/teacher-response.dto'; 
 import { Gender, MedicalArea } from '@prisma/client';
 import { Prisma } from '@prisma/client';
+import { Glasgow } from 'src/common/types/glasgow.type';
 
 export class CaseResponseDto {
   id!: string;
@@ -30,7 +31,7 @@ export class CaseResponseDto {
   capillaryFiller?: number | null;
 
   cincinnati?: Prisma.JsonValue;
-  glasgow?: number | null;
+  glasgow?: Glasgow | null;
 
   area!: MedicalArea;
 
