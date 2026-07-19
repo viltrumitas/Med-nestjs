@@ -14,6 +14,14 @@ async function bootstrap() {
     }),
   );
 
+  app.use((req, _res, next) => {
+    console.log('========== NUEVA PETICIÓN ==========');
+    console.log('METHOD:', req.method);
+    console.log('URL:', req.originalUrl);
+    console.log('AUTH:', req.headers.authorization);
+    next();
+  });
+
   app.enableCors({
     origin: [
       process.env.LOCAL_FRONTEND_URL,
@@ -24,7 +32,7 @@ async function bootstrap() {
     allowedHeaders: ['Content-Type', 'Authorization'],
     credentials: true,
   });
-  
+
   const config = new DocumentBuilder()
     .setTitle('Med NestJS - Clinical Cases API')
     .setDescription(

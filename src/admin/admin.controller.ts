@@ -1,7 +1,10 @@
-import { Controller, UseGuards, Post, Body, Get, Param, Patch, Delete, ParseUUIDPipe } from '@nestjs/common';
+import { Controller, UseGuards, Post, Body, Get, Param, Patch, Delete, ParseUUIDPipe, Headers } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 
 import { UserRole } from '@prisma/client';
+
+import type { Request } from 'express';
+import { Req } from '@nestjs/common';
 
 import { AdminService } from './admin.service';
 
@@ -20,7 +23,7 @@ import { UpdateAuthorizedUserDto } from './dto/update-user.dto';
 export class AdminController {
   constructor(
     private readonly adminService: AdminService,
-  ) {}
+  ) { }
 
   @Post('authorized-users')
   @ApiOperation({ summary: 'Agregar un usuario' })
@@ -31,9 +34,8 @@ export class AdminController {
   }
 
   @Get('authorized-users')
-  @ApiOperation({ summary: 'Listar todos los usuarios' })
   findAll() {
-    return this.adminService.findAll()
+    return this.adminService.findAll();
   }
 
   @Get('authorized-users/:id')
