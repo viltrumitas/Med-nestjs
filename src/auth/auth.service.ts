@@ -31,16 +31,22 @@ export class AuthService {
       throw new ConflictException('Esa matricula ya existe');
     }
 
+    const authorizedUser = await this.usersService.findAuthorizedUser(dto.matricula);
+
+    if (!authorizedUser) {
+      throw new UnauthorizedException(
+        `La matricula no pertenece a la institucion`
+      );
+    }
+
     const hashedPassword = await bcrypt.hash(dto.password, 10);
 
-    const authorizedTeacher = await this.usersService.findAuthorizedTeacher(dto.matricula);
-
-    const role = authorizedTeacher ? UserRole.TEACHER : UserRole.STUDENT;
-
     const user = await this.usersService.create({
-      ...dto,
+      matricula: authorizedUser.matricula,
+      firstName: authorizedUser.firstName,
+      lastName: authorizedUser.lastName,
       password: hashedPassword,
-      role,
+      role: authorizedUser.role,
     });
 
     const payload: JwtPayload = {

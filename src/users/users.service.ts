@@ -95,8 +95,8 @@ export class UsersService {
     });
   }
 
-  findAuthorizedTeacher(matricula: number) {
-    return this.prisma.authorizedTeacher.findUnique({
+  findAuthorizedUser(matricula: number) {
+    return this.prisma.authorizedUser.findUnique({
       where: {
         matricula,
       },
