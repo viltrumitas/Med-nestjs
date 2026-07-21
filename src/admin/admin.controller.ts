@@ -14,6 +14,7 @@ import { Roles } from 'src/common/decorators/roles.decorator';
 
 import { CreateAuthorizedUserDto } from './dto/create-user.dto';
 import { UpdateAuthorizedUserDto } from './dto/update-user.dto';
+import { StatisticsResponseDto } from './dto/statistics-response.dto';
 
 @ApiTags('Admin')
 @ApiBearerAuth('access_token')
@@ -61,5 +62,10 @@ export class AdminController {
     @Param('id', ParseUUIDPipe) id: string,
   ) {
     return this.adminService.delete(id);
+  }
+
+  @Get('statistics')
+  statistics(): Promise<StatisticsResponseDto> {
+    return this.adminService.statistics();
   }
 }

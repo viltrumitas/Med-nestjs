@@ -5,11 +5,13 @@ import { CreateAuthorizedUserDto } from './dto/create-user.dto';
 import { AdminMapper } from './mapper/admin.mapper';
 import { UpdateAuthorizedUserDto } from './dto/update-user.dto';
 
+import { UserRole } from '@prisma/client';
+
 @Injectable()
 export class AdminService {
   constructor(
     private readonly prisma: PrismaService,
-  ) {}
+  ) { }
 
   async create(dto: CreateAuthorizedUserDto) {
     const existing = await this.prisma.authorizedUser.findUnique({
@@ -24,7 +26,7 @@ export class AdminService {
       );
     }
 
-    const authorizedUser = 
+    const authorizedUser =
       await this.prisma.authorizedUser.create({
         data: {
           matricula: dto.matricula,
@@ -33,7 +35,7 @@ export class AdminService {
           role: dto.role,
         },
       });
-    
+
     return AdminMapper.toResponse(authorizedUser);
   }
 
@@ -44,7 +46,7 @@ export class AdminService {
       },
     });
 
-    return  users.map(AdminMapper.toSummary);
+    return users.map(AdminMapper.toSummary);
   }
 
   async findOne(id: string) {
@@ -108,5 +110,79 @@ export class AdminService {
     });
 
     return AdminMapper.toResponse(deleted);
+  }
+
+  async statistics() {
+    const [
+      totalStudents,
+      totalTeachers,
+      totalAdmins,
+      totalAuthorizedUsers,
+      totalCases,
+      publishedCases,
+      draftCases,
+      totalAssignments,
+      totalClassrooms,
+      totalSubmissions,
+      reviewedSubmissions,
+    ] = await Promise.all([
+      this.prisma.user.count({
+        where: {
+          role: UserRole.STUDENT,
+        },
+      }),
+
+      this.prisma.user.count({
+        where: {
+          role: UserRole.TEACHER,
+        },
+      }),
+
+      this.prisma.user.count({
+        where: {
+          role: UserRole.ADMIN,
+        },
+      }),
+
+      this.prisma.authorizedUser.count(),
+
+      this.prisma.case.count(),
+
+      this.prisma.case.count({
+        where: {
+          isPublished: true,
+        },
+      }),
+
+      this.prisma.case.count({
+        where: {
+          isPublished: false,
+        },
+      }),
+
+      this.prisma.assignment.count(),
+
+      this.prisma.classroom.count(),
+
+      this.prisma.submission.count(),
+
+      this.prisma.review.count(),
+    ]);
+
+    return {
+      totalStudents,
+      totalTeachers,
+      totalAdmins,
+      totalAuthorizedUsers,
+      totalCases,
+      publishedCases,
+      draftCases,
+      totalAssignments,
+      totalClassrooms,
+      totalSubmissions,
+      reviewedSubmissions,
+      pendingSubmissions:
+        totalSubmissions - reviewedSubmissions,
+    };
   }
 }
