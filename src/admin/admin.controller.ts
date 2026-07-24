@@ -1,9 +1,11 @@
-import { Controller, UseGuards, Post, Body, Get, Param, Patch, Delete, ParseUUIDPipe, Headers } from '@nestjs/common';
+import { Controller, UseGuards, Post, Body, Get, Param, Patch, Delete, ParseUUIDPipe, UploadedFile, UseInterceptors } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 
 import { UserRole } from '@prisma/client';
 
 import type { Request } from 'express';
+import type { Multer } from 'multer';
 import { Req } from '@nestjs/common';
 
 import { AdminService } from './admin.service';
@@ -25,6 +27,14 @@ export class AdminController {
   constructor(
     private readonly adminService: AdminService,
   ) { }
+
+  @Post('authorized-users/import')
+  @UseInterceptors(FileInterceptor('file'))
+  importAuthorizedUsers(
+    @UploadedFile() file: Express.Multer.File,
+  ) {
+    return this.adminService.importAuthorizedUsers(file);
+  }
 
   @Post('authorized-users')
   @ApiOperation({ summary: 'Agregar un usuario' })
