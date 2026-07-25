@@ -1,4 +1,6 @@
-import { Controller, UseGuards, Post, Body, Get, Param, Patch, Delete, ParseUUIDPipe, UploadedFile, UseInterceptors } from '@nestjs/common';
+import { Controller, UseGuards, Post, Body, Get, Param, Patch, Delete, ParseUUIDPipe, UploadedFile, UseInterceptors, Res } from '@nestjs/common';
+import type { Response } from 'express';
+import { join } from 'path';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 
@@ -34,6 +36,28 @@ export class AdminController {
     @UploadedFile() file: Express.Multer.File,
   ) {
     return this.adminService.importAuthorizedUsers(file);
+  }
+
+  private buildAuthorizedUsersTemplate(): string {
+    return [
+      'matricula,nombre,apellido,rol',
+      '20240001,Juan,Pérez,ESTUDIANTE',
+      '20240002,Ana,García,DOCENTE',
+      '20240003,Carlos,Ramírez,ADMINISTRADOR',
+    ].join('\n');
+  }
+
+  @Get('authorized-users/import/template')
+  downloadTemplate(
+    @Res({ passthrough: true }) res: Response,
+  ): string {
+    res.setHeader('Content-Type', 'text/csv');
+    res.setHeader(
+      'Content-Disposition',
+      'attachment; filename="plantilla-usuarios-autorizados.csv"',
+    );
+
+    return this.buildAuthorizedUsersTemplate();
   }
 
   @Post('authorized-users')

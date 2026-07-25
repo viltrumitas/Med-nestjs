@@ -233,9 +233,26 @@ export class AdminService {
     // Leer CSV
     let rows: ImportAuthorizedUserRowDto[];
 
+    const headerMap: Record<string, string> = {
+      matricula: 'matricula',
+      nombre: 'firstName',
+      apellido: 'lastName',
+      rol: 'role',
+
+      // También acepta los nombres internos
+      firstName: 'firstName',
+      lastName: 'lastName',
+      role: 'role',
+    };
+
     try {
       rows = parse(file.buffer, {
-        columns: true,
+        columns: (headers: string[]) =>
+          headers.map((header) => {
+            const normalized = header.trim().toLowerCase();
+
+            return headerMap[normalized] ?? normalized;
+          }),
         skip_empty_lines: true,
         trim: true,
       });
@@ -328,12 +345,29 @@ export class AdminService {
         });
       }
 
-      if (!validRoles.includes(row.role = row.role.trim().toUpperCase() as UserRole)) {
+      // traducir roles a spanish
+      const roleMap: Record<string, UserRole> = {
+        STUDENT: UserRole.STUDENT,
+        TEACHER: UserRole.TEACHER,
+        ADMIN: UserRole.ADMIN,
+
+        ESTUDIANTE: UserRole.STUDENT,
+        DOCENTE: UserRole.TEACHER,
+        ADMINISTRADOR: UserRole.ADMIN,
+      };
+
+      const normalizedRole = roleMap[row.role.trim().toUpperCase()];
+
+      if (!normalizedRole) {
         errors.push({
           row: rowNumber,
           message: `Rol inválido: ${row.role}`,
         });
+
+        continue;
       }
+
+      row.role = normalizedRole;
     }
 
     if (errors.length > 0) {
