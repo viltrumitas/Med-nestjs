@@ -10,13 +10,17 @@ export class RegisterDto {
   matricula!: number;
 
   @ApiProperty({
-    description: 'Contraseña (mínimo 6, máximo 100 caracteres)',
+    description: 'Contraseña (mínimo 8, máximo 100 caracteres)',
     example: 'SecurePass123!',
-    minLength: 6,
+    minLength: 8,
     maxLength: 100,
   })
   @IsString()
-  @MinLength(6)
-  @MaxLength(100)
+  @MinLength(8, {
+    message: 'La contraseña debe tener al menos 8 caracteres.',
+  })
+  @MaxLength(100, {
+    message: 'La contraseña no puede superar los 100 caracteres.',
+  })
   password!: string;
 }

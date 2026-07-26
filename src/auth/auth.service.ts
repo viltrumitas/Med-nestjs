@@ -2,6 +2,7 @@ import {
   ConflictException,
   Injectable,
   UnauthorizedException,
+  BadRequestException,
 } from '@nestjs/common';
 
 import * as bcrypt from 'bcrypt';
@@ -13,8 +14,6 @@ import { UsersService } from '../users/users.service';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 import { JwtPayload } from '../common/types/jwt-payload.type';
-import { UserResponseDto } from './dto/user-response.dto';
-import { UserRole } from '@prisma/client';
 import { AuthMapper } from './mappers/auth.mapper';
 
 @Injectable()
@@ -22,7 +21,7 @@ export class AuthService {
   constructor(
     private readonly usersService: UsersService,
     private readonly jwtService: JwtService,
-  ) {}
+  ) { }
 
   async register(dto: RegisterDto) {
     const existingUser = await this.usersService.findByMatricula(dto.matricula);
@@ -38,6 +37,13 @@ export class AuthService {
         `La matricula no pertenece a la institucion`
       );
     }
+
+
+    //if (dto.password.length < 8) {
+      //throw new BadRequestException(
+        //'La contraseña debe tener al menos 8 caracteres.',
+      //);
+    //}
 
     const hashedPassword = await bcrypt.hash(dto.password, 10);
 
