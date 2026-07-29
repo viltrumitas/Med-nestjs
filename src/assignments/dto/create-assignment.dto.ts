@@ -1,4 +1,5 @@
-import { ArrayMinSize, IsArray, IsOptional, IsString } from "class-validator";
+import { LateSubmissionPolicy } from "@prisma/client";
+import { ArrayMinSize, IsArray, IsDateString, IsOptional, IsString, IsEnum } from "class-validator";
 
 export class CreateAssignmentDto {
   @IsString()
@@ -6,10 +7,18 @@ export class CreateAssignmentDto {
 
   @IsOptional()
   @IsString()
-  description!: string;
+  description?: string;
 
   @IsArray()
   @ArrayMinSize(1)
-  @IsString({ each: true})
+  @IsString({ each: true })
   caseIds!: string[];
+
+  @IsOptional()
+  @IsDateString()
+  dueDate?: string;
+
+  @IsOptional()
+  @IsEnum(LateSubmissionPolicy)
+  lateSubmissionPolicy?: LateSubmissionPolicy;
 }

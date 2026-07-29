@@ -15,7 +15,7 @@ import { generateUniqueCode } from "src/common/utils/generate-code";
 import { CreateAssignmentDto } from "src/assignments/dto/create-assignment.dto";
 import { AssignmentMapper } from "src/assignments/mapper/assignment.mapper";
 import { assignmentDetailInclude } from "src/assignments/entities/assignment.entity";
-import { UserRole } from "@prisma/client";
+import { LateSubmissionPolicy, UserRole } from "@prisma/client";
 
 @Injectable()
 export class ClassroomsService {
@@ -56,10 +56,33 @@ export class ClassroomsService {
     return ClassroomMapper.toResponse(classroom);
   }
 
-  async createAssignment(classroomId: string, data: CreateAssignmentDto, teacherId: string) {
+  async createAssignment(
+    classroomId: string,
+    data: CreateAssignmentDto,
+    teacherId: string
+  ) {
 
     if (!data.caseIds || data.caseIds.length < 1) {
       throw new BadRequestException('Selecciona al menos un caso');
+    }
+
+    let dueDate: Date | null = null;
+    const now = new Date();
+
+    if (data.dueDate) {
+      dueDate = new Date(data.dueDate);
+
+      if (isNaN(dueDate.getTime())) {
+        throw new BadRequestException(
+          'La fecha límite no es válida.',
+        );
+      }
+
+      if (dueDate.getTime() <= now.getTime()) {
+        throw new BadRequestException(
+          'La fecha límite debe ser posterior a la fecha actual.',
+        );
+      }
     }
 
     const classroom = await this.prisma.classroom.findFirst({
@@ -107,6 +130,10 @@ export class ClassroomsService {
       data: {
         title: data.title,
         description: data.description,
+
+        dueDate,
+
+        lateSubmissionPolicy: data.lateSubmissionPolicy ?? LateSubmissionPolicy.ACCEPT_LATE,
 
         classroom: {
           connect: {

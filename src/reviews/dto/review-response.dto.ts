@@ -12,6 +12,7 @@ import { OtherInterventionsDto } from "./otherInterventions.dto";
 import { CaseResponseDto } from "src/cases/dto/case-response.dto";
 import { AssignmentResponseDto } from "src/assignments/dto/assignment-response.dto";
 import { SubmissionResponseDto } from "src/submissions/dto/submission-response.dto";
+import { SubmissionTiming } from "@prisma/client";
 
 
 export class ReviewResponseDto {
@@ -48,6 +49,10 @@ export class ReviewResponseDto {
   totalScore!: number;
 
   feedback?: string | null;
+
+  submissionTiming!: SubmissionTiming;
+
+  submittedAt!: Date | null;
 
   createdAt!: Date;
 }

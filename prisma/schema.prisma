@@ -55,8 +55,8 @@ model Classroom {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@index([teacherId])
   @@unique([teacherId, name])
+  @@index([teacherId])
 }
 
 model Enrollment {
@@ -102,6 +102,8 @@ model Assignment {
   assignedCases AssignedCase[]
 
   dueDate DateTime?
+
+  lateSubmissionPolicy LateSubmissionPolicy @default(ACCEPT_LATE)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -211,6 +213,10 @@ model Submission {
 
   review Review?
 
+  submittedAt DateTime?
+
+  submissionTiming SubmissionTiming @default(ON_TIME)
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -220,7 +226,7 @@ model Submission {
 model Review {
   id String @id @default(uuid())
 
-  submissionId String     @unique
+  submissionId String     @unique 
   submission   Submission @relation(fields: [submissionId], references: [id], onDelete: Cascade)
 
   teacherId String
@@ -272,4 +278,14 @@ enum MedicalArea {
   TRAUMA
   GYNECO_OBSTETRICS
   ADULT_EMERGENCY
+}
+
+enum LateSubmissionPolicy {
+  ACCEPT_LATE
+  REJECT_LATE
+}
+
+enum SubmissionTiming {
+  ON_TIME
+  LATE
 }

@@ -1,3 +1,4 @@
+import { SubmissionTiming } from "@prisma/client";
 import { AssignmentSummaryResponse } from "src/assignments/dto/assignment-summary.dto";
 import { CaseSummaryResponseDto } from "src/cases/dto/case-summary.dto";
 import { StudentSummaryResponse } from "src/users/dto/student-summary.dto";
@@ -10,5 +11,9 @@ export class ReviewSummaryResponseDto {
   student!: StudentSummaryResponse;
   assignment!: AssignmentSummaryResponse;
   case!: CaseSummaryResponseDto;
+
+  submissionTiming!: SubmissionTiming;
+
+  submittedAt!: Date | null;
   createdAt!: Date;
 }

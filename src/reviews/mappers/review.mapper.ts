@@ -61,6 +61,10 @@ export class ReviewMapper {
       totalScore: reviewEntity.totalScore,
       feedback: reviewEntity.feedback ?? null,
 
+      submissionTiming: reviewEntity.submission.submissionTiming,
+
+      submittedAt: reviewEntity.submission.submittedAt,
+
       createdAt: reviewEntity.createdAt,
     };
   }
@@ -76,11 +80,9 @@ export class ReviewMapper {
 
       student: StudentMapper.toSummaryStudent(assignedCase.student),
 
-      assignment: {
-        id: assignedCase.assignment.id,
-        title: assignedCase.assignment.title,
-        isPublished: assignedCase.assignment.isPublished,
-      },
+      assignment: AssignmentMapper.toSummary(
+        assignedCase.assignment,
+      ),
 
       case: {
         id: assignedCase.case.id,
@@ -89,6 +91,10 @@ export class ReviewMapper {
         isPublished: assignedCase.case.isPublished,
         createdAt: assignedCase.case.createdAt,
       },
+
+      submissionTiming: review.submission.submissionTiming,
+
+      submittedAt: review.submission.submittedAt,
 
       createdAt: review.createdAt,
     };

@@ -4,7 +4,7 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { SubmissionStatus } from '@prisma/client';
+import { LateSubmissionPolicy, SubmissionStatus, SubmissionTiming} from '@prisma/client';
 import { UserRole } from '@prisma/client';
 
 import { PrismaService } from 'src/prisma/prisma.service';
@@ -232,6 +232,26 @@ export class SubmissionsService {
       throw new BadRequestException('La clase ya no esta disponible');
     }
 
+    const assignment = submission.assignedCase.assignment;
+
+    const now = new Date();
+
+    let submissionTiming: SubmissionTiming = SubmissionTiming.ON_TIME;
+
+    if (assignment.dueDate && now > assignment.dueDate) {
+
+      if (
+        assignment.lateSubmissionPolicy ===
+        LateSubmissionPolicy.REJECT_LATE
+      ) {
+        throw new BadRequestException(
+          'La fecha limite ha expirado y esta actividad no acepta entregas tardias..',
+        );
+      }
+
+      submissionTiming = SubmissionTiming.LATE;
+    }
+
     if (
       submission.status !==
       SubmissionStatus.DRAFT
@@ -263,8 +283,9 @@ export class SubmissionsService {
       await this.prisma.submission.update({
         where: { id: submissionId },
         data: {
-          status:
-            SubmissionStatus.SUBMITTED,
+          status: SubmissionStatus.SUBMITTED,
+          submittedAt: now,
+          submissionTiming,
         },
         include: submissionDetailInclude,
       });

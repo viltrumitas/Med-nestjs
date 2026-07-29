@@ -41,6 +41,10 @@ export class SubmissionMapper {
 
       status: submission.status,
 
+      submissionTiming: submission.submissionTiming,
+
+      submittedAt: submission.submittedAt,
+
       createdAt: submission.createdAt,
       updatedAt: submission.updatedAt,
     };
@@ -65,6 +69,10 @@ export class SubmissionMapper {
       case: CaseMapper.toSummary(
         submission.assignedCase.case,
       ),
+
+      submissionTiming: submission.submissionTiming,
+
+      submittedAt: submission.submittedAt,
 
       status: submission.status,
 

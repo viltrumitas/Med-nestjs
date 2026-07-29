@@ -28,6 +28,10 @@ export class AssignmentMapper {
 
       isPublished: assignment.isPublished,
 
+      dueDate: assignment.dueDate,
+
+      lateSubmissionPolicy: assignment.lateSubmissionPolicy,
+
       createdAt: assignment.createdAt,
       updatedAt: assignment.updatedAt,
     };
@@ -57,6 +61,9 @@ export class AssignmentMapper {
       title: assignment.title,
       description: assignment.description ?? '',
       isPublished: assignment.isPublished,
+
+      dueDate: assignment.dueDate,
+      lateSubmissionPolicy: assignment.lateSubmissionPolicy,
     };
   }
 }

@@ -6,16 +6,12 @@ export const reviewListInclude = {
     select: {
       id: true,
       status: true,
+      submissionTiming: true,
+      submittedAt: true,
       assignedCase: {
         select: {
           student: true,
-          assignment: {
-            select: {
-              id: true,
-              title: true,
-              isPublished: true,
-            },
-          },
+          assignment: true,
           case: {
             select: {
               id: true,
