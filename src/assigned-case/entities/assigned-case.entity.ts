@@ -88,3 +88,14 @@ export type AssignmentAssignedCaseSummaryEntity =
   Prisma.AssignedCaseGetPayload<{
     include: typeof assignedCaseAssignmentSummaryInclude;
   }>;
+
+export type SubmissionEntity =
+  Prisma.SubmissionGetPayload<{
+    include: {
+      review: {
+        select: {
+          id: true;
+        };
+      };
+    };
+  }>;

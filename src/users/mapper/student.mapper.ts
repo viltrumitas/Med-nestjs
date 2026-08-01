@@ -1,6 +1,5 @@
 import { User } from "@prisma/client";
 import { StudentResponseDto } from "../dto/student-response.dto";
-import { TeacherSummaryResponse } from "../dto/teacher-summary.dto";
 import { StudentSummaryResponse } from "../dto/student-summary.dto";
 
 export class StudentMapper {
@@ -20,12 +19,13 @@ export class StudentMapper {
       id: string;
       firstName: string;
       lastName: string;
-      matricula?: number;
+      matricula: number;
     }): StudentSummaryResponse {
     return {
       id: user.id,
       firstName: user.firstName,
       lastName: user.lastName,
+      matricula: user.matricula, 
     }
   }
 }

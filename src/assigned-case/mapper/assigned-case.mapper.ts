@@ -2,7 +2,7 @@ import { AssignmentMapper } from '../../assignments/mapper/assignment.mapper';
 import { CaseMapper } from '../../cases/mappers/case.mapper';
 import { StudentMapper } from 'src/users/mapper/student.mapper';
 
-import { AssignedCaseDetailEntity, AssignedCaseListEntity } from '../entities/assigned-case.entity';
+import { AssignedCaseDetailEntity, AssignedCaseListEntity, SubmissionEntity } from '../entities/assigned-case.entity';
 import { AssignedCaseResponseDto } from '../dto/assigned-case-response.dto';
 
 import { AssignmentAssignedCaseEntity } from 'src/assignments/entities/assignment.entity';
@@ -14,12 +14,16 @@ import { AssignmentAssignedCaseSummaryEntity } from '../entities/assigned-case.e
 
 export class AssignedCaseMapper {
 
-  private static mapSubmission(submission: any) {
+  private static mapSubmission(submission: SubmissionEntity | null) {
     if (!submission) return null;
 
     return {
       id: submission.id,
       status: submission.status,
+
+      submissionTiming: submission.submissionTiming,
+      submittedAt: submission.submittedAt,
+      
       reviewId: submission.review?.id ?? null,
     };
   }
