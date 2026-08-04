@@ -1,4 +1,5 @@
 import { Prisma } from '@prisma/client';
+import { caseDetailInclude, caseListInclude } from 'src/cases/entities/case.entity';
 
 export const assignedCaseListInclude = {
   assignment: {
@@ -6,15 +7,13 @@ export const assignedCaseListInclude = {
       classroom: {
         include: {
           teacher: true,
-        },
-      },
-    },
+        }
+      }
+    }
   },
 
   case: {
-    include: {
-      author: true,
-    },
+    include: caseListInclude
   },
 
   submission: {
@@ -22,10 +21,11 @@ export const assignedCaseListInclude = {
       review: {
         select: {
           id: true,
-        },
-      },
-    },
+        }
+      }
+    }
   },
+
 } satisfies Prisma.AssignedCaseInclude;
 
 export const assignedCaseDetailInclude = {
@@ -34,15 +34,13 @@ export const assignedCaseDetailInclude = {
       classroom: {
         include: {
           teacher: true,
-        },
-      },
-    },
+        }
+      }
+    }
   },
 
   case: {
-    include: {
-      author: true,
-    },
+    include: caseDetailInclude,
   },
 
   student: true,
@@ -61,9 +59,7 @@ export const assignedCaseDetailInclude = {
 export const assignedCaseAssignmentSummaryInclude = {
   student: true,
   case: {
-    include: {
-      author: true,
-    },
+    include: caseListInclude,
   },
   submission: {
     include: {

@@ -1,13 +1,12 @@
 import { Prisma } from '@prisma/client';
+import { caseDetailInclude, caseListInclude } from 'src/cases/entities/case.entity';
 
 export const submissionListInclude = {
   assignedCase: {
     include: {
       student: true,
       case: {
-        include: {
-          author: true,
-        },
+        include: caseListInclude,
       },
       assignment: {
         include: {
@@ -33,9 +32,7 @@ export const submissionDetailInclude = {
     include: {
       student: true,
       case: {
-        include: {
-          author: true,
-        },
+        include: caseDetailInclude,
       },
       assignment: {
         include: {

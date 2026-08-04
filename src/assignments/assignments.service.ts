@@ -10,6 +10,7 @@ import { CreateAssignmentDto } from './dto/create-assignment.dto';
 import { AssignmentMapper } from './mapper/assignment.mapper';
 import { assignmentDetailInclude, assignmentListInclude } from './entities/assignment.entity';
 import { CaseMapper } from 'src/cases/mappers/case.mapper';
+import { caseListInclude } from 'src/cases/entities/case.entity';
 
 @Injectable()
 export class AssignmentsService {
@@ -38,9 +39,7 @@ export class AssignmentsService {
         },
         isPublished: true,
       },
-      include: {
-        author: true,
-      },
+      include: caseListInclude,
       orderBy: {
         createdAt: 'desc',
       },

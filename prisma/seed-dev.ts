@@ -1,5 +1,6 @@
 import { Prisma, PrismaClient } from "@prisma/client";
 import * as bcrypt from 'bcrypt';
+import { seedMedicalAreas } from "./seeds/seed-medical-area";
 
 const prisma = new PrismaClient();
 
@@ -15,6 +16,8 @@ async function main() {
       role: 'ADMIN', 
     },
   });
+
+  await seedMedicalAreas(prisma);
 }
 
 main()

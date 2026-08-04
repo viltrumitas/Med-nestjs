@@ -62,8 +62,12 @@ export class CasesService {
         cincinnati: data.neurological.cincinnati,
         glasgow,
 
-        area: data.area,
-
+        medicalArea: {
+          connect: {
+            id: data.medicalAreaId,
+          }
+        },
+        
         author: {
           connect: { id: teacherId },
         },

@@ -84,13 +84,7 @@ export class ReviewMapper {
         assignedCase.assignment,
       ),
 
-      case: {
-        id: assignedCase.case.id,
-        title: assignedCase.case.title ?? '',
-        consult: assignedCase.case.consult,
-        isPublished: assignedCase.case.isPublished,
-        createdAt: assignedCase.case.createdAt,
-      },
+      case: CaseMapper.toSummary(review.submission.assignedCase.case),
 
       submissionTiming: review.submission.submissionTiming,
 

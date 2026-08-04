@@ -1,5 +1,5 @@
 import { Type } from 'class-transformer';
-import { IsEnum, IsOptional, IsString, ValidateNested } from 'class-validator';
+import { IsEnum, IsOptional, IsString, IsUUID, ValidateNested } from 'class-validator';
 
 import { GeneralInfoDto } from './general-info.dto';
 import { PatientDto } from './patient.dto';
@@ -30,8 +30,8 @@ export class CreateCaseDto {
   @Type(() => NeurologicalDto)
   neurological!: NeurologicalDto;
 
-  @IsEnum(MedicalArea)
-  area!: MedicalArea;
+  @IsUUID()
+  medicalAreaId!: string;
 
   @ValidateNested()
   @Type(() => PublishCaseDto)

@@ -11,6 +11,7 @@ import { AssignmentsModule } from './assignments/assignments.module';
 import { AssignedCaseModule } from './assigned-case/assigned-case.module';
 import { ClassroomsModule } from './classrooms/classroom.module';
 import { AdminModule } from './admin/admin.module';
+import { MedicalAreaModule } from './medical-areas/medical-areas.module';
 
 
 @Module({
@@ -29,6 +30,7 @@ import { AdminModule } from './admin/admin.module';
     AssignedCaseModule,
     ClassroomsModule,
     AdminModule,
+    MedicalAreaModule,
   ],
 })
 export class AppModule {}

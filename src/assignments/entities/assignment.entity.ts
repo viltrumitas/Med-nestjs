@@ -1,4 +1,5 @@
 import { Prisma } from "@prisma/client";
+import { caseDetailInclude } from "src/cases/entities/case.entity";
 
 export const assignmentListInclude = {
   classroom: {
@@ -18,9 +19,7 @@ export const assignmentDetailInclude = {
   cases: {
     include: {
       case: {
-        include: {
-          author: true,
-        },
+        include: caseDetailInclude,
       },
     },
   },
@@ -30,9 +29,7 @@ export const assignmentDetailInclude = {
       student: true,
 
       case: {
-        include: {
-          author: true,
-        },
+        include: caseDetailInclude,
       },
 
       submission: {

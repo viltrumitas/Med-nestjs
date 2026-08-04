@@ -1,4 +1,4 @@
-import { TeacherResponseDto } from 'src/users/dto/teacher-response.dto'; 
+import { TeacherResponseDto } from 'src/users/dto/teacher-response.dto';
 import { Gender, MedicalArea } from '@prisma/client';
 import { Prisma } from '@prisma/client';
 import { Glasgow } from 'src/common/types/glasgow.type';
@@ -33,9 +33,19 @@ export class CaseResponseDto {
   cincinnati?: Prisma.JsonValue;
   glasgow?: Glasgow | null;
 
-  area!: MedicalArea;
+  medicalArea!: {
+    id: string;
+    name: string;
+  } | null;
 
   isPublished!: boolean | null;
+
+  usage!: {
+    totalAssignments: number;
+    activeAssignments: number,
+    lastUsedAt: Date | null;
+    neverUsed: boolean;
+  };
 
   createdAt!: Date;
   updatedAt!: Date;
